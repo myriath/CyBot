@@ -10,11 +10,6 @@
 
 #include <stdint.h>
 
-
-// Constants for scan servo
-const int SCAN_RIGHT = 327250;
-const int SCAN_LEFT = 1282750;
-
 // Constants for puttyHandler relating to sending numbers
 const int INT_ARR_DIGITS = 10;
 const int SEND_FLOAT_DECIMAL_PLACES = 2;

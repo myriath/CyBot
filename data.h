@@ -11,8 +11,6 @@
 #ifndef DATA_H_
 #define DATA_H_
 
-extern const int SCAN_RIGHT;
-extern const int SCAN_LEFT;
 extern const int INT_ARR_DIGITS;
 extern const int SEND_FLOAT_DECIMAL_PLACES;
 extern const int MAX_OBJECTS;

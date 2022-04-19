@@ -5,23 +5,24 @@
  *      Author: wmhudson
  */
 
-#include "ping.h"\
+#include "ping.h"
 
 static uint8_t initialized = 0;
 
 static uint8_t state = 0;
+static bool ready = false;
 float startTime = 0;
 float endTime = 0;
 
 void TIMER3B_Handler() {
     TIMER3_ICR_R |= 0x400;
 
-    if (state) {
+    if (!state) {
         startTime = TIMER3_TBR_R;
-        state = 0;
+        state = 1;
     } else {
         endTime = TIMER3_TBR_R;
-        state = 1;
+        ready = true;
     }
 }
 
@@ -80,10 +81,9 @@ void ping_trigger() {
     TIMER3_CTL_R |= 0x100;
 }
 
-float ping_getDistanceRAW() {
-    return endTime - startTime;
-}
-
-float ping_getDistanceCM() {
-    return (endTime - startTime) / 32000000 * 34300;
+float ping_getDistance() {
+    ping_trigger();
+    while (!ready);
+    ready = false;
+    return (startTime - endTime) / 32000000 * 34300;
 }

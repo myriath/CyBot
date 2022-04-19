@@ -16,8 +16,7 @@
 
 void ping_init();
 void ping_trigger();
-float ping_getDistanceCM();
-float ping_getDistanceRAW();
+float ping_getDistance();
 
 void TIMER3B_Handler();
 

@@ -18,6 +18,7 @@
 #include "driverlib/interrupt.h"
 
 volatile char command_byte = 0;
+bool sending = false;
 
 void UART1_Handler(void) {
     char byte_received;
@@ -166,24 +167,30 @@ void uart_sendStr(const char *string){
 
 void uart_log() {
     uart_sendStr("LOG:");
+    sending = true;
 }
 
 void uart_scan() {
     uart_sendStr("SCN:");
+    sending = true;
 }
 
 void uart_object() {
     uart_sendStr("OBJ:");
+    sending = true;
 }
 
 void uart_move() {
     uart_sendStr("MOV:");
+    sending = true;
 }
 
 void uart_end() {
     uart_sendChar(B_NEWLINE);
+    sending = false;
 }
 
 void uart_stopWait() {
     uart_sendChar(B_WAIT);
+    sending = false;
 }

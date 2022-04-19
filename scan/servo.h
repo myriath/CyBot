@@ -10,15 +10,17 @@
 
 #include <stdint.h>
 #include <inc/tm4c123gh6pm.h>
-#include "Timer.h"
+#include <math.h>
+
+#include "../Timer.h"
 #include "driverlib/interrupt.h"
-#include "lcd.h"
+#include "../lcd.h"
 
 extern unsigned int left;
 extern unsigned int right;
 
 void servo_init();
 void servo_move(int degrees);
-void servo_setMatch(unsigned int match);
+void servo_setMatch(int match);
 
 #endif /* SERVO_H_ */

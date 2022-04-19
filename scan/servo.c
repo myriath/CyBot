@@ -11,6 +11,9 @@ uint8_t initialized = 0;
 
 unsigned int right = 0x4a380;
 unsigned int left = 0x46500;
+unsigned float degreeCount;
+
+int currentDegree = -1;
 
 void servo_init() {
     //Check if already initialized
@@ -19,9 +22,9 @@ void servo_init() {
     }
 
     SYSCTL_RCGCGPIO_R |= 0x2;
-    while (!(SYSCTL_PRGPIO_R & 0x2)) {}
+    while (!(SYSCTL_PRGPIO_R & 0x2));
     SYSCTL_RCGCTIMER_R |= 0x2;
-    while (!(SYSCTL_PRTIMER_R & 0x2)) {}
+    while (!(SYSCTL_PRTIMER_R & 0x2));
 
     GPIO_PORTB_DIR_R |= 0x20;
     GPIO_PORTB_AFSEL_R |= 0x20;
@@ -38,24 +41,33 @@ void servo_init() {
 
     TIMER1_CTL_R |= 0x100;
 
+    degreeCount = right - left / 180f;
+    servo_move(0); // initial move
     initialized = true;
 }
 
-void servo_setMatch(unsigned int match) {
+void servo_setMatch(int match) {
     TIMER1_TBMATCHR_R = match & 0xffff;
-    TIMER1_TBPMR_R = (match & 0xff0000) >> 16;
+    TIMER1_TBPMR_R = (unsigned long int)(match & 0xff0000) >> 16;
 }
 
 void servo_move(int degrees) {
-    // 0: PWM0_0_CMPB_R = 0x251c0;
-    // 180: PWM0_0_CMPB_R = 0x23280;
+    if (degrees == currentDegree) return;
+    currentDegree = degrees;
+    unsigned long int match = right - round(degrees * degreeCount);
+    servo_setMatch(match);
 
-    double percent = degrees / 180.0f;
-    unsigned long int a = (right - left);
-    unsigned long int match = left + a * percent;
-    int b = match & 0xffff;
-    int c = (unsigned long int)(match >> 16) & 0xff0000;
+    int dist = abs(currentDegree - degrees);
+    int servoMillisPerDegree = 1; // TODO: arbitrary temp value, TEST THIS
+    timer_waitMillis(servoMillisPerDegree * dist + 10);
 
-    TIMER1_TBMATCHR_R = match & 0xffff;
-    TIMER1_TBPMR_R = (unsigned long int)(match & 0xff0000) >> 16;
+//    // old code
+//    double percent = degrees / 180.0f;
+//    unsigned long int a = (right - left);
+//    unsigned long int match = left + a * percent;
+//    int b = match & 0xffff;
+//    int c = (unsigned long int)(match >> 16) & 0xff0000;
+//
+//    TIMER1_TBMATCHR_R = match & 0xffff;
+//    TIMER1_TBPMR_R = (unsigned long int)(match & 0xff0000) >> 16;
 }
