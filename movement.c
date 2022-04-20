@@ -130,3 +130,62 @@ void move_square(oi_t* sensorData) {
         x++;
     }
 }
+
+double edge_detect(oi_t *sensor_data) {
+    double line = 0;
+    int sensor = 0;
+
+    oi_update(sensor_data);
+    if ((sensor_data -> cliffRightSignal) > 1500) {
+        line = sensor_data -> cliffRightSignal;
+        move_backward(sensor_data, 10);
+        turn_left(sensor_data, 3);
+    }
+    if ((sensor_data -> cliffFrontRightSignal) > 1500) {
+        line = sensor_data -> cliffFrontRightSignal;
+        move_backward(sensor_data, 10);
+        turn_left(sensor_data, 3);
+    }
+    if ((sensor_data -> cliffFrontLeftSignal) > 1500) {
+        line = sensor_data -> cliffFrontLeftSignal;
+        move_backward(sensor_data, 10);
+        turn_right(sensor_data, 3);
+    }
+    if ((sensor_data -> cliffLeftSignal) > 1500) {
+        line = sensor_data -> cliffLeftSignal;
+        move_backward(sensor_data, 10);
+        turn_right(sensor_data, 3);
+    }
+
+
+    return line;
+
+}
+
+
+void cliffSensor(oi_t *sensor_data){
+    bool isCliffRight = 0;
+    bool isCliffFrontRight = 0;
+    bool isCliffFrontLeft = 0;
+    bool isCliffLeft = 0;
+
+    oi_update(sensor_data);
+    isCliffRight = sensor_data -> cliffRight;
+    isCliffFrontRight = sensor_data -> cliffFrontRight;
+    isCliffFrontLeft = sensor_data -> cliffFrontLeft;
+    isCliffLeft = sensor_data -> cliffLeft;
+
+    if(isCliffFrontRight){
+        move_backward(sensor_data, 100);
+    }
+    if(isCliffFrontLeft){
+        move_backward(sensor_data, 100);
+    }
+    if(isCliffRight){
+        move_backward(sensor_data, 100);
+    }
+    if(isCliffLeft){
+        move_backward(sensor_data, 100);
+    }
+    return;
+}

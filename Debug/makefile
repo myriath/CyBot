@@ -13,6 +13,7 @@ ORDERED_OBJS += \
 "./Timer.obj" \
 "./button.obj" \
 "./data.obj" \
+"./interrupts.obj" \
 "./lcd.obj" \
 "./main.obj" \
 "./movement.obj" \
@@ -172,8 +173,8 @@ Final.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "Timer.obj" "button.obj" "data.obj" "lcd.obj" "main.obj" "movement.obj" "open_interface.obj" "resetSimulation.obj" "tm4c123gh6pm_startup_ccs.obj" "uart.obj" "scan\adc.obj" "scan\ping.obj" "scan\scan.obj" "scan\servo.obj" 
-	-$(RM) "Timer.d" "button.d" "data.d" "lcd.d" "main.d" "movement.d" "open_interface.d" "resetSimulation.d" "tm4c123gh6pm_startup_ccs.d" "uart.d" "scan\adc.d" "scan\ping.d" "scan\scan.d" "scan\servo.d" 
+	-$(RM) "Timer.obj" "button.obj" "data.obj" "interrupts.obj" "lcd.obj" "main.obj" "movement.obj" "open_interface.obj" "resetSimulation.obj" "tm4c123gh6pm_startup_ccs.obj" "uart.obj" "scan\adc.obj" "scan\ping.obj" "scan\scan.obj" "scan\servo.obj" 
+	-$(RM) "Timer.d" "button.d" "data.d" "interrupts.d" "lcd.d" "main.d" "movement.d" "open_interface.d" "resetSimulation.d" "tm4c123gh6pm_startup_ccs.d" "uart.d" "scan\adc.d" "scan\ping.d" "scan\scan.d" "scan\servo.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

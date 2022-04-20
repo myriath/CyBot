@@ -11,6 +11,8 @@
 #include <stdint.h>
 #include <inc/tm4c123gh6pm.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "../Timer.h"
 #include "driverlib/interrupt.h"

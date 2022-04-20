@@ -5,7 +5,11 @@
 #ifndef CYBOT_INTERRUPTS_H
 #define CYBOT_INTERRUPTS_H
 
-bool interrupt_emergency = false;
-bool interrupt_stopScan = false;
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+extern bool interrupt_emergency;// = false;
+extern bool interrupt_stopScan;
 
 #endif //CYBOT_INTERRUPTS_H

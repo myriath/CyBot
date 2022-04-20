@@ -11,12 +11,13 @@
 #ifndef DATA_H_
 #define DATA_H_
 
-extern const int INT_ARR_DIGITS;
-extern const int SEND_FLOAT_DECIMAL_PLACES;
-extern const int MAX_OBJECTS;
+#define MAX_OBJECTS 10
+#define INT_ARR_DIGITS 10
+#define SEND_FLOAT_DECIMAL_PLACES 2
+#define MAX_COMMAND_LEN 100
+
 extern int object_num;
 extern int speed;
-extern const int MAX_COMMAND_LEN;
 
 extern const uint8_t B_WAIT;
 extern const uint8_t B_EMERGENCY_STOP;

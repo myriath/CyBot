@@ -25,12 +25,8 @@
 #include "scan/scan.h"
 
 //cyBOT_Scan_t scanData;
+TallObject objects[MAX_OBJECTS];
 TallObject smallest;
-
-double raw_to_dist(double ir_val) {
-    if (ir_val <= 118.22901) return -1;
-    return 28541.58384 / (ir_val - 118.22901);
-}
 
 void measure_dist() {
     uart_log();
@@ -39,8 +35,9 @@ void measure_dist() {
 }
 
 void calibrate() {
-    uint8_t last = 4;
+    uint8_t last = 0;
     servo_setMatch(right);
+    lcd_printf("calibrating");
     while (true) {
         uint8_t button = button_getButton();
         if (button != last) {
@@ -48,7 +45,7 @@ void calibrate() {
                 right -= 200;
             } else if (button == 2) {
                 right += 200;
-            } else if (button == 4) {
+            } else if (button == 3) {
                 break;
             }
             servo_setMatch(right);
@@ -135,6 +132,10 @@ int parse(char* command, oi_t* sensorData) {
             turn_left(sensorData, degrees);
         }
         return 8;
+    } else if (strcmp(params[0], ":servo") == 0 && paramCnt == 2) {
+        int degrees = atoi(params[1]);
+        servo_move(degrees);
+        oi_setWheels(100,100);
     }
     return -1;
 }
@@ -176,7 +177,7 @@ int main() {
     // Calibration data, set this BEFORE scan init
     left = 284400;
     right = 312600;
-    scan_init()
+    scan_init();
 
     uint8_t last = 0;
     int commandLen = 0;
@@ -219,7 +220,7 @@ int main() {
             command_byte = 0;
             if (!commandLen) {
                 if (i == B_SCAN) {
-                    scan_full();
+                    scan_full(objects);
                 } else if (i == B_MOVE_STOP) {
                     oi_setWheels(0, 0);
                 } else if (i == B_MOVE_FORWARD) {

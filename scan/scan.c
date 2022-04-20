@@ -105,7 +105,7 @@ void scan_full(TallObject* objects) {
         uart_sendInt(ir_val);
         uart_end();
 
-        bool finding_obj = scan.distance > 10 && scan.distance < 50;
+        bool finding_obj = ir_val > 10 && ir_val < 70;
 
         if (finding_obj) {
             uart_scan();
@@ -134,7 +134,7 @@ void scan_full(TallObject* objects) {
         objects[i].dist = scan_ping(objects[i].angle);
 
         double radians = (objects[i].radial_width * PI) / 360.0;
-        objects[i].linear_width = 2 * ping_dist * tan(radians);
+        objects[i].linear_width = 2 * objects[i].dist * tan(radians);
     }
 
     uart_log();
@@ -142,25 +142,27 @@ void scan_full(TallObject* objects) {
     uart_end();
     for (i = 0; i < object_num; i++) {
         if (interrupt_stopScan || interrupt_emergency) return;
-        uart_log();
-        uart_sendInt(objects[i].obj_num); // send object data to screen
-        uart_sendChar('\t');
-        uart_sendInt(objects[i].angle);
-        uart_sendChar('\t');
-        uart_sendFloat(objects[i].dist);
-        uart_sendChar('\t');
-        uart_sendInt(objects[i].radial_width);
-        uart_sendChar('\t');
-        uart_sendFloat(objects[i].linear_width);
-        uart_end();
+        if (objects[i].dist < 50 + objects[i].linear_width) {
+            uart_log();
+            uart_sendInt(objects[i].obj_num); // send object data to screen
+            uart_sendChar('\t');
+            uart_sendInt(objects[i].angle);
+            uart_sendChar('\t');
+            uart_sendFloat(objects[i].dist);
+            uart_sendChar('\t');
+            uart_sendInt(objects[i].radial_width);
+            uart_sendChar('\t');
+            uart_sendFloat(objects[i].linear_width);
+            uart_end();
 
-        uart_object();
-        uart_sendInt(objects[i].angle);
-        uart_sendChar(',');
-        uart_sendFloat(objects[i].dist);
-        uart_sendChar(',');
-        uart_sendFloat(objects[i].linear_width);
-        uart_end();
+            uart_object();
+            uart_sendInt(objects[i].angle);
+            uart_sendChar(',');
+            uart_sendFloat(objects[i].dist);
+            uart_sendChar(',');
+            uart_sendFloat(objects[i].linear_width);
+            uart_end();
+        }
     }
 
     object_num = 0;

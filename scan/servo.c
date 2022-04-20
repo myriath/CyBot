@@ -7,11 +7,13 @@
 
 #include "servo.h"
 
+float servoMillisPerDegree = 500.0/180.0; // TODO: arbitrary temp value, TEST THIS
+
 uint8_t initialized = 0;
 
 unsigned int right = 0x4a380;
 unsigned int left = 0x46500;
-unsigned float degreeCount;
+float degreeCount;
 
 int currentDegree = -1;
 
@@ -41,7 +43,7 @@ void servo_init() {
 
     TIMER1_CTL_R |= 0x100;
 
-    degreeCount = right - left / 180f;
+    degreeCount = (right - left) / 180.0f;
     servo_move(0); // initial move
     initialized = true;
 }
@@ -53,13 +55,15 @@ void servo_setMatch(int match) {
 
 void servo_move(int degrees) {
     if (degrees == currentDegree) return;
-    currentDegree = degrees;
     unsigned long int match = right - round(degrees * degreeCount);
     servo_setMatch(match);
 
     int dist = abs(currentDegree - degrees);
-    int servoMillisPerDegree = 1; // TODO: arbitrary temp value, TEST THIS
-    timer_waitMillis(servoMillisPerDegree * dist + 10);
+    currentDegree = degrees;
+//    timer_waitMillis(500);
+    lcd_printf("%d", servoMillisPerDegree * dist + 100);
+    timer_waitMillis(servoMillisPerDegree * dist + 100);
+
 
 //    // old code
 //    double percent = degrees / 180.0f;

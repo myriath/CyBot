@@ -31,10 +31,13 @@ main.obj: ../data.h
 main.obj: ../movement.h
 main.obj: ../structs.h
 main.obj: ../scan/scan.h
+main.obj: ../interrupts.h
+main.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdlib.h
 main.obj: ../scan/adc.h
 main.obj: ../scan/ping.h
 main.obj: ../scan/scan.h
 main.obj: ../scan/servo.h
+main.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdlib.h
 
 ../main.c:
 
@@ -98,6 +101,10 @@ C:/ti/TivaWare_C_Series-2.1.4.178/driverlib/interrupt.h:
 
 ../scan/scan.h:
 
+../interrupts.h:
+
+C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdlib.h:
+
 ../scan/adc.h:
 
 ../scan/ping.h:
@@ -105,4 +112,6 @@ C:/ti/TivaWare_C_Series-2.1.4.178/driverlib/interrupt.h:
 ../scan/scan.h:
 
 ../scan/servo.h:
+
+C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdlib.h:
 

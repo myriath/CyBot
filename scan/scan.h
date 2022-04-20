@@ -23,7 +23,9 @@
 double toRadians(double degrees);
 double toDegrees(double radians);
 
-Scan getTrueScan(Scan scan, double dist, double degrees);
+double raw_to_dist(double ir_val);
+
+void getTrueScan(Scan scan, double dist, double degrees);
 
 void scan_init();
 void scan_test();

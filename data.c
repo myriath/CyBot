@@ -10,19 +10,11 @@
 
 #include <stdint.h>
 
-// Constants for puttyHandler relating to sending numbers
-const int INT_ARR_DIGITS = 10;
-const int SEND_FLOAT_DECIMAL_PLACES = 2;
-
 // Tracks max number of objects and how many there are
-const int MAX_OBJECTS = 10;
 int object_num = 0;
 
 // Speed for the robot
 int speed = 50;
-
-// Maximum command length
-const int MAX_COMMAND_LEN = 100;
 
 // App byte commands
 const uint8_t B_WAIT = 0x01;

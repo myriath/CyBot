@@ -11,16 +11,18 @@ scan/scan.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/sy
 scan/scan.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/machine/_types.h
 scan/scan.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/machine/_limits.h
 scan/scan.obj: U:/288/Final/structs.h
-scan/scan.obj: ../scan/adc.h
+scan/scan.obj: ../interrupts.h
+scan/scan.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdlib.h
 scan/scan.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdint.h
 scan/scan.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/_stdint40.h
 scan/scan.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/sys/stdint.h
 scan/scan.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/machine/_stdint.h
 scan/scan.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/sys/_stdint.h
+scan/scan.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdbool.h
+scan/scan.obj: ../scan/adc.h
 scan/scan.obj: C:/ti/TivaWare_C_Series-2.1.4.178/inc/tm4c123gh6pm.h
 scan/scan.obj: ../scan/ping.h
 scan/scan.obj: U:/288/Final/Timer.h
-scan/scan.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdbool.h
 scan/scan.obj: C:/ti/TivaWare_C_Series-2.1.4.178/driverlib/interrupt.h
 scan/scan.obj: U:/288/Final/lcd.h
 scan/scan.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdio.h
@@ -28,6 +30,9 @@ scan/scan.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/st
 scan/scan.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/string.h
 scan/scan.obj: ../scan/scan.h
 scan/scan.obj: ../scan/servo.h
+scan/scan.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdlib.h
+scan/scan.obj: ../uart.h
+scan/scan.obj: ../data.h
 
 ../scan/scan.c:
 
@@ -51,7 +56,9 @@ C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/machine/_limits.h
 
 U:/288/Final/structs.h:
 
-../scan/adc.h:
+../interrupts.h:
+
+C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdlib.h:
 
 C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdint.h:
 
@@ -63,13 +70,15 @@ C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/machine/_stdint.h
 
 C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/sys/_stdint.h:
 
+C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdbool.h:
+
+../scan/adc.h:
+
 C:/ti/TivaWare_C_Series-2.1.4.178/inc/tm4c123gh6pm.h:
 
 ../scan/ping.h:
 
 U:/288/Final/Timer.h:
-
-C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdbool.h:
 
 C:/ti/TivaWare_C_Series-2.1.4.178/driverlib/interrupt.h:
 
@@ -84,4 +93,10 @@ C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/string.h:
 ../scan/scan.h:
 
 ../scan/servo.h:
+
+C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdlib.h:
+
+../uart.h:
+
+../data.h:
 
