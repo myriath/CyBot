@@ -11,5 +11,8 @@
 
 extern bool interrupt_emergency;// = false;
 extern bool interrupt_stopScan;
+extern bool interrupt_stopMove;
+
+void interrupt_reset();
 
 #endif //CYBOT_INTERRUPTS_H

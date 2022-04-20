@@ -61,7 +61,6 @@ void servo_move(int degrees) {
     int dist = abs(currentDegree - degrees);
     currentDegree = degrees;
 //    timer_waitMillis(500);
-    lcd_printf("%d", servoMillisPerDegree * dist + 100);
     timer_waitMillis(servoMillisPerDegree * dist + 100);
 
 

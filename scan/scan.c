@@ -53,6 +53,7 @@ double scan_ping(int degree) {
     double ping = 0;
     for (j = 0; j < 3; j++) {
         ping += ping_getDistance();
+        timer_waitMillis(10);
     }
     return ping / 3;
 }
@@ -132,6 +133,7 @@ void scan_full(TallObject* objects) {
     for (i = 0; i < object_num; i++) {
         if (interrupt_stopScan || interrupt_emergency) return;
         objects[i].dist = scan_ping(objects[i].angle);
+        lcd_printf("%d", i);
 
         double radians = (objects[i].radial_width * PI) / 360.0;
         objects[i].linear_width = 2 * objects[i].dist * tan(radians);

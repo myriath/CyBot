@@ -9,20 +9,21 @@
 
 static uint8_t initialized = 0;
 
-static uint8_t state = 0;
-static bool ready = false;
+volatile enum{LOW, HIGH, DONE} STATE = LOW;
 float startTime = 0;
 float endTime = 0;
 
 void TIMER3B_Handler() {
-    TIMER3_ICR_R |= 0x400;
+    if (TIMER3_MIS_R & 0x400) {
+        TIMER3_ICR_R |= 0x400;
 
-    if (!state) {
-        startTime = TIMER3_TBR_R;
-        state = 1;
-    } else {
-        endTime = TIMER3_TBR_R;
-        ready = true;
+        if (STATE == LOW) {
+            startTime = TIMER3_TBR_R;
+            STATE = HIGH;
+        } else if (STATE == HIGH) {
+            endTime = TIMER3_TBR_R;
+            STATE = DONE;
+        }
     }
 }
 
@@ -42,9 +43,6 @@ void ping_init() {
     GPIO_PORTB_DEN_R |= 0x8;
     GPIO_PORTB_PCTL_R |= 0x7000;
 
-//    IntRegister(INT_TIMER3B, TIMER3B_Handler);
-    IntMasterEnable();
-
     TIMER3_CTL_R &= ~0x100;
 
     TIMER3_CFG_R |= 0x4;
@@ -58,7 +56,7 @@ void ping_init() {
     NVIC_PRI9_R |= 0x20;
 
     IntRegister(INT_TIMER3B, TIMER3B_Handler);
-//    IntMasterEnable();
+    IntMasterEnable();
 
     TIMER3_CTL_R |= 0x100;
 
@@ -66,14 +64,16 @@ void ping_init() {
 }
 
 void ping_trigger() {
+    STATE = LOW;
     TIMER3_IMR_R &= ~0x400;
     TIMER3_CTL_R &= ~0x100;
     GPIO_PORTB_DIR_R |= 0x8;
     GPIO_PORTB_AFSEL_R &= ~0x8;
 
-    GPIO_PORTB_DATA_R |= 0x8;
-    timer_waitMillis(0.005);
     GPIO_PORTB_DATA_R &= ~0x8;
+    GPIO_PORTB_DATA_R |= 0x8; //high
+    timer_waitMicros(5);
+    GPIO_PORTB_DATA_R &= ~0x8; //low
 
     GPIO_PORTB_DIR_R &= ~0x8;
     GPIO_PORTB_AFSEL_R |= 0x8;
@@ -83,7 +83,6 @@ void ping_trigger() {
 
 float ping_getDistance() {
     ping_trigger();
-    while (!ready);
-    ready = false;
+    while (STATE != DONE);
     return (startTime - endTime) / 32000000 * 34300;
 }

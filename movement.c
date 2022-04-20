@@ -12,6 +12,7 @@
 #include "open_interface.h"
 #include "data.h"
 #include "uart.h"
+#include "interrupts.h"
 
 void bumpLeft(oi_t* sensorData) {
     move_backward(sensorData, 50);
@@ -81,10 +82,12 @@ void move_forward(oi_t* sensorData, double distanceMM) {
     oi_setWheels(speed, speed);
     int sum = 0;
     while (sum < distanceMM) {
-        if (command_byte == B_EMERGENCY_STOP) return;
+        if (interrupt_emergency || interrupt_stopMove) return;
         oi_update(sensorData);
         sum += sensorData->distance;
         lcd_printf("Distance traveled: \n%d\nDistanceMM: \n%lf", sum, distanceMM);
+        cliffSensor(sensorData);
+        edge_detect(sensorData);
         if (sensorData->bumpLeft) {
             bumpLeft(sensorData);
             oi_setWheels(speed, speed);
@@ -103,11 +106,30 @@ void move_forward(oi_t* sensorData, double distanceMM) {
     uart_stopWait();
 }
 
+void move_backward_speed(oi_t* sensorData, double distanceMM, int speed) {
+    oi_setWheels(-speed, -speed);
+    int sum = 0;
+    while (sum > -distanceMM) {
+        if (interrupt_emergency || interrupt_stopMove) return;
+        oi_update(sensorData);
+        sum += sensorData->distance;
+        lcd_printf("Backwards traveled: \n%d\nDistanceMM: \n%lf", sum, distanceMM);
+    }
+    oi_setWheels(0,0);
+    lcd_clear();
+    uart_move();
+    uart_sendInt(0);
+    uart_sendChar(',');
+    uart_sendFloat(distanceMM/10);
+    uart_end();
+    uart_stopWait();
+}
+
 void move_backward(oi_t* sensorData, double distanceMM) {
     oi_setWheels(-speed, -speed);
     int sum = 0;
     while (sum > -distanceMM) {
-        if (command_byte == B_EMERGENCY_STOP) return;
+        if (interrupt_emergency || interrupt_stopMove) return;
         oi_update(sensorData);
         sum += sensorData->distance;
         lcd_printf("Backwards traveled: \n%d\nDistanceMM: \n%lf", sum, distanceMM);
@@ -131,37 +153,60 @@ void move_square(oi_t* sensorData) {
     }
 }
 
-double edge_detect(oi_t *sensor_data) {
-    double line = 0;
-    int sensor = 0;
-
-    oi_update(sensor_data);
-    if ((sensor_data -> cliffRightSignal) > 1500) {
-        line = sensor_data -> cliffRightSignal;
+void edge_detect(oi_t *sensor_data) {
+    if ((sensor_data -> cliffRightSignal) > 2500) {
+        uart_log();
+        uart_sendFloat((sensor_data -> cliffRightSignal));
+        uart_end();
         move_backward(sensor_data, 10);
         turn_left(sensor_data, 3);
+        uart_log();
+        uart_sendStr("LINE R");
+        uart_end();
+        interrupt_stopMove = true;
     }
-    if ((sensor_data -> cliffFrontRightSignal) > 1500) {
-        line = sensor_data -> cliffFrontRightSignal;
+    if ((sensor_data -> cliffFrontRightSignal) > 2500) {
+        uart_log();
+        uart_sendFloat((sensor_data -> cliffRightSignal));
+        uart_end();
         move_backward(sensor_data, 10);
         turn_left(sensor_data, 3);
+        uart_log();
+        uart_sendStr("LINE FR");
+        uart_end();
+        interrupt_stopMove = true;
     }
-    if ((sensor_data -> cliffFrontLeftSignal) > 1500) {
-        line = sensor_data -> cliffFrontLeftSignal;
+    if ((sensor_data -> cliffFrontLeftSignal) > 2500) {
+        uart_log();
+        uart_sendFloat((sensor_data -> cliffRightSignal));
+        uart_end();
         move_backward(sensor_data, 10);
         turn_right(sensor_data, 3);
+        uart_log();
+        uart_sendStr("LINE FL");
+        uart_end();
+        interrupt_stopMove = true;
     }
-    if ((sensor_data -> cliffLeftSignal) > 1500) {
-        line = sensor_data -> cliffLeftSignal;
+    if ((sensor_data -> cliffLeftSignal) > 2500) {
+        uart_log();
+        uart_sendFloat((sensor_data -> cliffRightSignal));
+        uart_end();
         move_backward(sensor_data, 10);
         turn_right(sensor_data, 3);
+        uart_log();
+        uart_sendStr("LINE L");
+        uart_end();
+        interrupt_stopMove = true;
     }
-
-
-    return line;
-
 }
 
+void cliff(oi_t* sensor_data, const char* str) {
+    move_backward_speed(sensor_data, 100, speed * 2);
+    uart_log();
+    uart_sendStr(str);
+    uart_end();
+    interrupt_stopMove = true;
+}
 
 void cliffSensor(oi_t *sensor_data){
     bool isCliffRight = 0;
@@ -169,23 +214,22 @@ void cliffSensor(oi_t *sensor_data){
     bool isCliffFrontLeft = 0;
     bool isCliffLeft = 0;
 
-    oi_update(sensor_data);
     isCliffRight = sensor_data -> cliffRight;
     isCliffFrontRight = sensor_data -> cliffFrontRight;
     isCliffFrontLeft = sensor_data -> cliffFrontLeft;
     isCliffLeft = sensor_data -> cliffLeft;
 
     if(isCliffFrontRight){
-        move_backward(sensor_data, 100);
+        cliff(sensor_data, "CLIFF FR");
     }
     if(isCliffFrontLeft){
-        move_backward(sensor_data, 100);
+        cliff(sensor_data, "CLIFF FL");
     }
     if(isCliffRight){
-        move_backward(sensor_data, 100);
+        cliff(sensor_data, "CLIFF R");
     }
     if(isCliffLeft){
-        move_backward(sensor_data, 100);
+        cliff(sensor_data, "CLIFF L");
     }
     return;
 }

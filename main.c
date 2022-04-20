@@ -164,7 +164,8 @@ uint8_t handle_buttons(uint8_t last) {
     return last;
 }
 
-int main() {
+
+ int main() {
     button_init();
     timer_init();
     lcd_init();
@@ -205,7 +206,9 @@ int main() {
 //        }
 
 //    }
+//    servo_move(180);
     while (true){
+        interrupt_reset();
         // Buttons
         last = handle_buttons(last);
 //        uart_log();
@@ -231,6 +234,14 @@ int main() {
                     oi_setWheels(-speed, -speed);
                 } else if (i == B_MOVE_RIGHT) {
                     oi_setWheels(-speed, speed);
+                } else if (i == B_MOVE_FORWARD_INC) {
+                    move_forward(sensorData, 50);
+                } else if (i == B_MOVE_LEFT_INC) {
+                    turn_left(sensorData, 5);
+                } else if (i == B_MOVE_REVERSE_INC) {
+                    move_backward(sensorData, 50);
+                } else if (i == B_MOVE_RIGHT_INC) {
+                    turn_right(sensorData, 5);
                 } else if (i == ':') {
                     command[commandLen++] = i;
                     command[commandLen] = '\0';
