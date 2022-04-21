@@ -164,76 +164,94 @@ uint8_t handle_buttons(uint8_t last) {
     return last;
 }
 
+enum{NONE, STOPPED, TURNING, FORWARD, REVERSE} STATE_ROBOT = NONE;
 
  int main() {
     button_init();
     timer_init();
+    uart_init();
     lcd_init();
 
     oi_t* sensorData = oi_alloc();
     oi_init(sensorData);
 
-    uart_init();
-
     // Calibration data, set this BEFORE scan init
-    left = 284400;
-    right = 312600;
+    left = 285400;
+    right = 312000;
     scan_init();
 
     uint8_t last = 0;
     int commandLen = 0;
     char command[MAX_COMMAND_LEN];
 
-//    int overflows = 0;
-//    while (true) {
-//        last = handle_buttons(last);
-//
-//        ping_trigger();
-//        timer_waitMillis(500);
-//        float dist = ping_getDistanceCM();
-//        if (dist < 0) {
-//            overflows++;
-//        }
-//
-//        lcd_printf("RAW: %0.2f\n CM: %0.2f\nOVF: %d", ping_getDistanceRAW(), dist, overflows);
-//    }
+    double cumulativeDistance = 0;
+    double cumulativeAngle = 0;
 
-//    while (true) {
-//        char i = command_byte;
-//        if (i == B_MOVE_FORWARD) {
-//            command_byte = 0;
-//            measure_dist();
-//        }
-
-//    }
-//    servo_move(180);
     while (true){
         interrupt_reset();
+        if (STATE_ROBOT == FORWARD) {
+            oi_update(sensorData);
+            cumulativeDistance += sensorData->distance / 10;
+            if (cliffSensor(sensorData)) STATE_ROBOT = STOPPED;
+            else if (edge_detect(sensorData)) STATE_ROBOT = STOPPED;
+            else if (bump(sensorData)) STATE_ROBOT = STOPPED;
+        } else if (STATE_ROBOT == REVERSE) {
+            oi_update(sensorData);
+            cumulativeDistance += sensorData->distance / 10;
+            if (cliffSensor(sensorData)) STATE_ROBOT = STOPPED;
+            else if (edge_detect(sensorData)) STATE_ROBOT = STOPPED;
+        } else if (STATE_ROBOT == TURNING) {
+            oi_update(sensorData);
+            cumulativeAngle += sensorData->angle;
+            if (cliffSensor(sensorData)) STATE_ROBOT = STOPPED;
+            else if (edge_detect(sensorData)) STATE_ROBOT = STOPPED;
+            else if (bump(sensorData)) STATE_ROBOT = STOPPED;
+        } else if (STATE_ROBOT == STOPPED) {
+            oi_setWheels(0, 0);
+            oi_update(sensorData);
+            cumulativeDistance += sensorData->distance / 10;
+            cumulativeAngle += sensorData->angle;
+
+            uart_move();
+            uart_sendFloat(cumulativeAngle);
+            uart_sendChar(',');
+            uart_sendFloat(cumulativeDistance);
+            uart_end();
+            STATE_ROBOT = NONE;
+            cumulativeDistance = 0;
+            cumulativeAngle = 0;
+            continue;
+        }
         // Buttons
         last = handle_buttons(last);
-//        uart_log();
-//        uart_sendStr("hello");
-//        uart_end();
-//        timer_waitMillis(1000);
 
         // PuTTY
         char i = command_byte;
-//        lcd_printf("%d", i);
         if (i != 0) {
             command_byte = 0;
             if (!commandLen) {
                 if (i == B_SCAN) {
                     scan_full(objects);
                 } else if (i == B_MOVE_STOP) {
+                    STATE_ROBOT = STOPPED;
                     oi_setWheels(0, 0);
+                    continue;
                 } else if (i == B_MOVE_FORWARD) {
+                    STATE_ROBOT = FORWARD;
                     oi_setWheels(speed, speed);
+                    continue;
                 } else if (i == B_MOVE_LEFT) {
+                    STATE_ROBOT = TURNING;
                     oi_setWheels(speed, -speed);
+                    continue;
                 } else if (i == B_MOVE_REVERSE) {
+                    STATE_ROBOT = REVERSE;
                     oi_setWheels(-speed, -speed);
+                    continue;
                 } else if (i == B_MOVE_RIGHT) {
+                    STATE_ROBOT = TURNING;
                     oi_setWheels(-speed, speed);
+                    continue;
                 } else if (i == B_MOVE_FORWARD_INC) {
                     move_forward(sensorData, 50);
                 } else if (i == B_MOVE_LEFT_INC) {

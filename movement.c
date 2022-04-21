@@ -30,6 +30,36 @@ void bumpRight(oi_t* sensorData) {
     move_forward(sensorData, 50);
 }
 
+void msgStop(const char* str) {
+    uart_log();
+    uart_sendStr(str);
+    uart_end();
+    interrupt_stopMove = true;
+}
+
+bool bump(oi_t* sensorData) {
+    bool left = sensorData->bumpLeft;
+    bool right = sensorData->bumpRight;
+
+    bool lRight = sensorData->lightBumperRight;
+    bool lFrontRight = sensorData->lightBumperFrontRight;
+    bool lCenterRight = sensorData->lightBumperCenterRight;
+    bool lCenterLeft = sensorData->lightBumperCenterLeft;
+    bool lFrontLeft = sensorData->lightBumperFrontLeft;
+    bool lLeft = sensorData->lightBumperLeft;
+
+    if (left) msgStop("BUMP LEFT");
+    else if (right) msgStop("BUMP RIGHT");
+    else if (lRight) msgStop("LIGHT BUMP RIGHT");
+    else if (lFrontRight) msgStop("LIGHT BUMP FRONT RIGHT");
+    else if (lCenterRight) msgStop("LIGHT BUMP CENTER RIGHT");
+    else if (lCenterLeft) msgStop("LIGHT BUMP CENTER LEFT");
+    else if (lFrontLeft) msgStop("LIGHT BUMP FRONT LEFT");
+    else if (lLeft) msgStop("LIGHT BUMP LEFT");
+
+    return left || right || lRight || lFrontRight || lCenterRight || lCenterLeft || lFrontLeft || lLeft;
+}
+
 void turn_left(oi_t* sensorData, double degrees) {
     double target = degrees;
     oi_setWheels(speed, -speed);
@@ -42,9 +72,6 @@ void turn_left(oi_t* sensorData, double degrees) {
     }
     oi_setWheels(0,0);
     lcd_clear();
-    uart_log();
-    uart_sendFloat(degrees);
-    uart_end();
 
     uart_move();
     uart_sendInt(degrees);
@@ -66,9 +93,6 @@ void turn_right(oi_t* sensorData, double degrees) {
     }
     oi_setWheels(0,0);
     lcd_clear();
-    uart_log();
-    uart_sendFloat(degrees);
-    uart_end();
 
     uart_move();
     uart_sendInt(target);
@@ -153,8 +177,16 @@ void move_square(oi_t* sensorData) {
     }
 }
 
-void edge_detect(oi_t *sensor_data) {
-    if ((sensor_data -> cliffRightSignal) > 2500) {
+int threshold = 2500;
+
+bool edge_detect(oi_t *sensor_data) {
+
+    bool right = sensor_data->cliffRightSignal > threshold;
+    bool left = sensor_data->cliffLeftSignal > threshold;
+    bool frontRight = sensor_data->cliffFrontRightSignal > threshold;
+    bool frontLeft = sensor_data->cliffFrontLeftSignal > threshold;
+
+    if (right) {
         uart_log();
         uart_sendFloat((sensor_data -> cliffRightSignal));
         uart_end();
@@ -165,9 +197,9 @@ void edge_detect(oi_t *sensor_data) {
         uart_end();
         interrupt_stopMove = true;
     }
-    if ((sensor_data -> cliffFrontRightSignal) > 2500) {
+    else if (frontRight) {
         uart_log();
-        uart_sendFloat((sensor_data -> cliffRightSignal));
+        uart_sendFloat((sensor_data -> cliffFrontRightSignal));
         uart_end();
         move_backward(sensor_data, 10);
         turn_left(sensor_data, 3);
@@ -176,9 +208,9 @@ void edge_detect(oi_t *sensor_data) {
         uart_end();
         interrupt_stopMove = true;
     }
-    if ((sensor_data -> cliffFrontLeftSignal) > 2500) {
+    else if (frontLeft) {
         uart_log();
-        uart_sendFloat((sensor_data -> cliffRightSignal));
+        uart_sendFloat((sensor_data -> cliffFrontLeftSignal));
         uart_end();
         move_backward(sensor_data, 10);
         turn_right(sensor_data, 3);
@@ -187,9 +219,9 @@ void edge_detect(oi_t *sensor_data) {
         uart_end();
         interrupt_stopMove = true;
     }
-    if ((sensor_data -> cliffLeftSignal) > 2500) {
+    else if (left) {
         uart_log();
-        uart_sendFloat((sensor_data -> cliffRightSignal));
+        uart_sendFloat((sensor_data -> cliffLeftSignal));
         uart_end();
         move_backward(sensor_data, 10);
         turn_right(sensor_data, 3);
@@ -198,6 +230,8 @@ void edge_detect(oi_t *sensor_data) {
         uart_end();
         interrupt_stopMove = true;
     }
+
+    return right || left || frontRight || frontLeft;
 }
 
 void cliff(oi_t* sensor_data, const char* str) {
@@ -208,7 +242,7 @@ void cliff(oi_t* sensor_data, const char* str) {
     interrupt_stopMove = true;
 }
 
-void cliffSensor(oi_t *sensor_data){
+bool cliffSensor(oi_t *sensor_data){
     bool isCliffRight = 0;
     bool isCliffFrontRight = 0;
     bool isCliffFrontLeft = 0;
@@ -222,14 +256,15 @@ void cliffSensor(oi_t *sensor_data){
     if(isCliffFrontRight){
         cliff(sensor_data, "CLIFF FR");
     }
-    if(isCliffFrontLeft){
+    else if(isCliffFrontLeft){
         cliff(sensor_data, "CLIFF FL");
     }
-    if(isCliffRight){
+    else if(isCliffRight){
         cliff(sensor_data, "CLIFF R");
     }
-    if(isCliffLeft){
+    else if(isCliffLeft){
         cliff(sensor_data, "CLIFF L");
     }
-    return;
+
+    return isCliffRight || isCliffFrontRight || isCliffFrontLeft || isCliffLeft;
 }

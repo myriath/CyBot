@@ -22,6 +22,7 @@ extern int speed;
 extern const uint8_t B_WAIT;
 extern const uint8_t B_EMERGENCY_STOP;
 extern const uint8_t B_SCAN;
+extern const uint8_t B_SCAN_RESET;
 extern const uint8_t B_MOVE_STOP;
 extern const uint8_t B_MOVE_FORWARD;
 extern const uint8_t B_MOVE_FORWARD_INC;

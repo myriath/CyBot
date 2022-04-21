@@ -17,7 +17,8 @@ void turn_right(oi_t* sensorData, double degrees);
 void move_forward(oi_t* sensorData, double distanceMM);
 void move_backward(oi_t* sensorData, double distanceMM);
 void move_square(oi_t* sensorData);
-void edge_detect(oi_t* sensorData);
-void cliffSensor(oi_t* sensorData);
+bool bump(oi_t* sensorData);
+bool edge_detect(oi_t* sensorData);
+bool cliffSensor(oi_t* sensorData);
 
 #endif /* MOVEMENT_H_ */

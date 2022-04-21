@@ -20,6 +20,7 @@ int speed = 50;
 const uint8_t B_WAIT = 0x01;
 const uint8_t B_EMERGENCY_STOP = 0x02;
 const uint8_t B_SCAN = 0x03;
+const uint8_t B_SCAN_RESET = 0x04;
 const uint8_t B_NEWLINE = 0x0a;
 const uint8_t B_MOVE_STOP = 0x10;
 const uint8_t B_MOVE_FORWARD = 0x11;

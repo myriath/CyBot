@@ -86,6 +86,7 @@ void scan_buildObject(int obj_degree_end, int obj_degree_start, TallObject* obje
 }
 
 void scan_full(TallObject* objects) {
+    uart_sendChar(B_SCAN_RESET);
     bool found_obj = false;
     int obj_degree_start;
     servo_move(0);
