@@ -12,6 +12,9 @@
 #ifndef MOVEMENT_H_
 #define MOVEMENT_H_
 
+extern double cumulativeAngle;
+extern double cumulativeDistance;
+
 void turn_left(oi_t* sensorData, double degrees);
 void turn_right(oi_t* sensorData, double degrees);
 void move_forward(oi_t* sensorData, double distanceMM);

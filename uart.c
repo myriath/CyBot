@@ -13,12 +13,14 @@
 #include <math.h>
 #include <stdbool.h>
 
+#include "interrupts.h"
 #include "uart.h"
 #include "data.h"
 #include "driverlib/interrupt.h"
 
 volatile char command_byte = 0;
 bool sending = false;
+bool scanning = false;
 
 void UART1_Handler(void) {
     char byte_received;
@@ -31,9 +33,16 @@ void UART1_Handler(void) {
 
         //read the byte received from UART1_DR_R and echo it back to PuTTY
         //ignore the error bits in UART1_DR_R
-        byte_received = UART1_DR_R & 0xff;
+        command_byte = UART1_DR_R & 0xff;
 
-        command_byte = byte_received;
+        if (command_byte == B_EMERGENCY_STOP) {
+            interrupt_emergency = true;
+            command_byte = 0;
+        }
+        else if (command_byte == B_SCAN && scanning) {
+            interrupt_stopScan = true;
+            command_byte = 0;
+        }
     }
 }
 
@@ -163,6 +172,11 @@ void uart_sendStr(const char *string){
         uart_sendChar(string[0]);
         string++;
     }
+}
+
+void uart_movea() {
+    uart_sendStr("MOA:");
+    sending = true;
 }
 
 void uart_log() {

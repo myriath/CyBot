@@ -177,14 +177,26 @@ void move_square(oi_t* sensorData) {
     }
 }
 
-int threshold = 2500;
+int threshold = 2550;
+double cumulativeDistance = 0;
+double cumulativeAngle = 0;
 
 bool edge_detect(oi_t *sensor_data) {
 
-    bool right = sensor_data->cliffRightSignal > threshold;
-    bool left = sensor_data->cliffLeftSignal > threshold;
-    bool frontRight = sensor_data->cliffFrontRightSignal > threshold;
-    bool frontLeft = sensor_data->cliffFrontLeftSignal > threshold;
+    int r = sensor_data->cliffRightSignal;
+    int l = sensor_data->cliffLeftSignal;
+    int fr = sensor_data->cliffFrontRightSignal;
+    int fl = sensor_data->cliffFrontLeftSignal;
+//    oi_update(sensor_data);
+//    cumulativeDistance += sensor_data->distance;
+//    r += sensor_data->cliffRightSignal;
+//    l += sensor_data->cliffLeftSignal;
+//    fr += sensor_data->cliffFrontRightSignal;
+//    fl += sensor_data->cliffFrontLeftSignal;
+    bool right = r > threshold;
+    bool left = l > threshold;
+    bool frontRight = fr > threshold;
+    bool frontLeft = fl > threshold;
 
     if (right) {
         uart_log();

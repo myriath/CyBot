@@ -16,7 +16,6 @@
 #include "open_interface.h"
 #include "Timer.h"
 #include "lcd.h"
-//#include "cyBot_Scan.h"
 
 #include "uart.h"
 #include "data.h"
@@ -24,7 +23,6 @@
 #include "structs.h"
 #include "scan/scan.h"
 
-//cyBOT_Scan_t scanData;
 TallObject objects[MAX_OBJECTS];
 TallObject smallest;
 
@@ -164,9 +162,10 @@ uint8_t handle_buttons(uint8_t last) {
     return last;
 }
 
+
 enum{NONE, STOPPED, TURNING, FORWARD, REVERSE} STATE_ROBOT = NONE;
 
- int main() {
+int main() {
     button_init();
     timer_init();
     uart_init();
@@ -176,22 +175,24 @@ enum{NONE, STOPPED, TURNING, FORWARD, REVERSE} STATE_ROBOT = NONE;
     oi_init(sensorData);
 
     // Calibration data, set this BEFORE scan init
-    left = 285400;
-    right = 312000;
+    left = 284400;
+    right = 312800;
     scan_init();
 
     uint8_t last = 0;
     int commandLen = 0;
     char command[MAX_COMMAND_LEN];
 
-    double cumulativeDistance = 0;
-    double cumulativeAngle = 0;
-
     while (true){
         interrupt_reset();
         if (STATE_ROBOT == FORWARD) {
             oi_update(sensorData);
             cumulativeDistance += sensorData->distance / 10;
+//            uart_movea();
+//            uart_sendChar('0');
+//            uart_sendChar(',');
+//            uart_sendFloat(sensorData->distance * 100);
+//            uart_end();
             if (cliffSensor(sensorData)) STATE_ROBOT = STOPPED;
             else if (edge_detect(sensorData)) STATE_ROBOT = STOPPED;
             else if (bump(sensorData)) STATE_ROBOT = STOPPED;
@@ -203,12 +204,22 @@ enum{NONE, STOPPED, TURNING, FORWARD, REVERSE} STATE_ROBOT = NONE;
         } else if (STATE_ROBOT == TURNING) {
             oi_update(sensorData);
             cumulativeAngle += sensorData->angle;
+//            uart_movea();
+//            uart_sendFloat(sensorData->angle);
+//            uart_sendChar(',');
+//            uart_sendChar('0');
+//            uart_end();
             if (cliffSensor(sensorData)) STATE_ROBOT = STOPPED;
             else if (edge_detect(sensorData)) STATE_ROBOT = STOPPED;
             else if (bump(sensorData)) STATE_ROBOT = STOPPED;
         } else if (STATE_ROBOT == STOPPED) {
             oi_setWheels(0, 0);
             oi_update(sensorData);
+//            uart_movea();
+//            uart_sendFloat(sensorData->angle);
+//            uart_sendChar(',');
+//            uart_sendFloat(sensorData->distance * 100);
+//            uart_end();
             cumulativeDistance += sensorData->distance / 10;
             cumulativeAngle += sensorData->angle;
 
@@ -218,8 +229,8 @@ enum{NONE, STOPPED, TURNING, FORWARD, REVERSE} STATE_ROBOT = NONE;
             uart_sendFloat(cumulativeDistance);
             uart_end();
             STATE_ROBOT = NONE;
-            cumulativeDistance = 0;
-            cumulativeAngle = 0;
+//            cumulativeDistance = 0;
+//            cumulativeAngle = 0;
             continue;
         }
         // Buttons
@@ -231,27 +242,32 @@ enum{NONE, STOPPED, TURNING, FORWARD, REVERSE} STATE_ROBOT = NONE;
             command_byte = 0;
             if (!commandLen) {
                 if (i == B_SCAN) {
+                    scanning = true;
                     scan_full(objects);
+                    scanning = false;
                 } else if (i == B_MOVE_STOP) {
                     STATE_ROBOT = STOPPED;
                     oi_setWheels(0, 0);
-                    continue;
                 } else if (i == B_MOVE_FORWARD) {
                     STATE_ROBOT = FORWARD;
                     oi_setWheels(speed, speed);
-                    continue;
+                    cumulativeDistance = 0;
+                    cumulativeAngle = 0;
                 } else if (i == B_MOVE_LEFT) {
                     STATE_ROBOT = TURNING;
                     oi_setWheels(speed, -speed);
-                    continue;
+                    cumulativeDistance = 0;
+                    cumulativeAngle = 0;
                 } else if (i == B_MOVE_REVERSE) {
                     STATE_ROBOT = REVERSE;
                     oi_setWheels(-speed, -speed);
-                    continue;
+                    cumulativeDistance = 0;
+                    cumulativeAngle = 0;
                 } else if (i == B_MOVE_RIGHT) {
                     STATE_ROBOT = TURNING;
                     oi_setWheels(-speed, speed);
-                    continue;
+                    cumulativeDistance = 0;
+                    cumulativeAngle = 0;
                 } else if (i == B_MOVE_FORWARD_INC) {
                     move_forward(sensorData, 50);
                 } else if (i == B_MOVE_LEFT_INC) {

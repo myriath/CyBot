@@ -29,6 +29,7 @@
 extern volatile char command_byte; // byte value for special character used as a command
 extern volatile int command_flag; // flag to tell the main program a special command was received
 extern bool sending;
+extern bool scanning;
 
 // UART1 device initialization for CyBot to PuTTY
 void uart_init(void);
@@ -54,6 +55,7 @@ void uart_log();
 void uart_scan();
 void uart_object();
 void uart_move();
+void uart_movea();
 void uart_end();
 void uart_stopWait();
 
