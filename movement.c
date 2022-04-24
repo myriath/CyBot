@@ -31,9 +31,9 @@ void bumpRight(oi_t* sensorData) {
 }
 
 void msgStop(const char* str) {
-    uart_log();
-    uart_sendStr(str);
-    uart_end();
+    uart_log(str);
+//    uart_sendStr(str);
+//    uart_end();
     interrupt_stopMove = true;
 }
 
@@ -73,11 +73,11 @@ void turn_left(oi_t* sensorData, double degrees) {
     oi_setWheels(0,0);
     lcd_clear();
 
-    uart_move();
-    uart_sendInt(degrees);
-    uart_sendChar(',');
-    uart_sendInt(0);
-    uart_end();
+    uart_move(0, degrees);
+//    uart_sendInt(degrees);
+//    uart_sendChar(',');
+//    uart_sendInt(0);
+//    uart_end();
     uart_stopWait();
 }
 
@@ -94,11 +94,11 @@ void turn_right(oi_t* sensorData, double degrees) {
     oi_setWheels(0,0);
     lcd_clear();
 
-    uart_move();
-    uart_sendInt(target);
-    uart_sendChar(',');
-    uart_sendInt(0);
-    uart_end();
+    uart_move(0, target);
+//    uart_sendInt(target);
+//    uart_sendChar(',');
+//    uart_sendInt(0);
+//    uart_end();
     uart_stopWait();
 }
 
@@ -122,11 +122,11 @@ void move_forward(oi_t* sensorData, double distanceMM) {
     }
     oi_setWheels(0,0);
     lcd_clear();
-    uart_move();
-    uart_sendInt(0);
-    uart_sendChar(',');
-    uart_sendFloat(distanceMM/10);
-    uart_end();
+    uart_move(distanceMM/10, 0);
+//    uart_sendInt(0);
+//    uart_sendChar(',');
+//    uart_sendFloat(distanceMM/10);
+//    uart_end();
     uart_stopWait();
 }
 
@@ -141,11 +141,11 @@ void move_backward_speed(oi_t* sensorData, double distanceMM, int speed) {
     }
     oi_setWheels(0,0);
     lcd_clear();
-    uart_move();
-    uart_sendInt(0);
-    uart_sendChar(',');
-    uart_sendFloat(distanceMM/10);
-    uart_end();
+    uart_move(distanceMM/10, 0);
+//    uart_sendInt(0);
+//    uart_sendChar(',');
+//    uart_sendFloat(distanceMM/10);
+//    uart_end();
     uart_stopWait();
 }
 
@@ -160,11 +160,11 @@ void move_backward(oi_t* sensorData, double distanceMM) {
     }
     oi_setWheels(0,0);
     lcd_clear();
-    uart_move();
-    uart_sendInt(0);
-    uart_sendChar(',');
-    uart_sendFloat(distanceMM/10);
-    uart_end();
+    uart_move(distanceMM/10, 0);
+//    uart_sendInt(0);
+//    uart_sendChar(',');
+//    uart_sendFloat(distanceMM/10);
+//    uart_end();
     uart_stopWait();
 }
 
@@ -182,75 +182,57 @@ double cumulativeDistance = 0;
 double cumulativeAngle = 0;
 
 bool edge_detect(oi_t *sensor_data) {
+    bool right = sensor_data->cliffRightSignal > threshold;
+    bool left = sensor_data->cliffLeftSignal > threshold;
+    bool frontRight = sensor_data->cliffFrontRightSignal > threshold;
+    bool frontLeft = sensor_data->cliffFrontLeftSignal > threshold;
 
-    int r = sensor_data->cliffRightSignal;
-    int l = sensor_data->cliffLeftSignal;
-    int fr = sensor_data->cliffFrontRightSignal;
-    int fl = sensor_data->cliffFrontLeftSignal;
-//    oi_update(sensor_data);
-//    cumulativeDistance += sensor_data->distance;
-//    r += sensor_data->cliffRightSignal;
-//    l += sensor_data->cliffLeftSignal;
-//    fr += sensor_data->cliffFrontRightSignal;
-//    fl += sensor_data->cliffFrontLeftSignal;
-    bool right = r > threshold;
-    bool left = l > threshold;
-    bool frontRight = fr > threshold;
-    bool frontLeft = fl > threshold;
+    bool move = false;
 
     if (right) {
-        uart_log();
-        uart_sendFloat((sensor_data -> cliffRightSignal));
-        uart_end();
-        move_backward(sensor_data, 10);
-        turn_left(sensor_data, 3);
-        uart_log();
-        uart_sendStr("LINE R");
-        uart_end();
-        interrupt_stopMove = true;
+        uart_logEdge("LINE R", sensor_data->cliffRightSignal);
+        move = true;
     }
-    else if (frontRight) {
-        uart_log();
-        uart_sendFloat((sensor_data -> cliffFrontRightSignal));
-        uart_end();
-        move_backward(sensor_data, 10);
-        turn_left(sensor_data, 3);
-        uart_log();
-        uart_sendStr("LINE FR");
-        uart_end();
-        interrupt_stopMove = true;
+    if (frontRight) {
+        uart_logEdge("LINE FR", sensor_data->cliffFrontRightSignal);
+        move = true;
     }
-    else if (frontLeft) {
-        uart_log();
-        uart_sendFloat((sensor_data -> cliffFrontLeftSignal));
-        uart_end();
-        move_backward(sensor_data, 10);
-        turn_right(sensor_data, 3);
-        uart_log();
-        uart_sendStr("LINE FL");
-        uart_end();
-        interrupt_stopMove = true;
+    if (frontLeft) {
+        uart_logEdge("LINE FL", sensor_data->cliffFrontLeftSignal);
+        move = true;
     }
-    else if (left) {
-        uart_log();
-        uart_sendFloat((sensor_data -> cliffLeftSignal));
-        uart_end();
+    if (left) {
+        uart_logEdge("LINE L", sensor_data->cliffLeftSignal);
+        move = true;
+    }
+
+    if (move) {
+        oi_setWheels(0, 0);
+        timer_waitMillis(100);
+        oi_update(sensor_data);
+        cumulativeDistance += sensor_data->distance / 10;
+        cumulativeAngle += sensor_data->angle;
+        uart_move(cumulativeDistance, cumulativeAngle);
+        cumulativeDistance = 0;
+        cumulativeAngle = 0;
         move_backward(sensor_data, 10);
-        turn_right(sensor_data, 3);
-        uart_log();
-        uart_sendStr("LINE L");
-        uart_end();
         interrupt_stopMove = true;
     }
 
-    return right || left || frontRight || frontLeft;
+    return move;
 }
 
 void cliff(oi_t* sensor_data, const char* str) {
+    oi_setWheels(0, 0);
+    timer_waitMillis(100);
+    oi_update(sensor_data);
+    cumulativeDistance += sensor_data->distance / 10;
+    cumulativeAngle += sensor_data->angle;
+    uart_move(cumulativeDistance, cumulativeAngle);
+    cumulativeDistance = 0;
+    cumulativeAngle = 0;
     move_backward_speed(sensor_data, 100, speed * 2);
-    uart_log();
-    uart_sendStr(str);
-    uart_end();
+    uart_log(str);
     interrupt_stopMove = true;
 }
 

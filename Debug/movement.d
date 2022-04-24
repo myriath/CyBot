@@ -27,6 +27,7 @@ movement.obj: C:/ti/TivaWare_C_Series-2.1.4.178/driverlib/interrupt.h
 movement.obj: ../lcd.h
 movement.obj: ../data.h
 movement.obj: ../uart.h
+movement.obj: ../structs.h
 movement.obj: ../interrupts.h
 movement.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdlib.h
 
@@ -83,6 +84,8 @@ C:/ti/TivaWare_C_Series-2.1.4.178/driverlib/interrupt.h:
 ../data.h:
 
 ../uart.h:
+
+../structs.h:
 
 ../interrupts.h:
 

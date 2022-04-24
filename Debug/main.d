@@ -27,9 +27,9 @@ main.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdbool
 main.obj: C:/ti/TivaWare_C_Series-2.1.4.178/driverlib/interrupt.h
 main.obj: ../lcd.h
 main.obj: ../uart.h
+main.obj: ../structs.h
 main.obj: ../data.h
 main.obj: ../movement.h
-main.obj: ../structs.h
 main.obj: ../scan/scan.h
 main.obj: ../interrupts.h
 main.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdlib.h
@@ -93,11 +93,11 @@ C:/ti/TivaWare_C_Series-2.1.4.178/driverlib/interrupt.h:
 
 ../uart.h:
 
+../structs.h:
+
 ../data.h:
 
 ../movement.h:
-
-../structs.h:
 
 ../scan/scan.h:
 

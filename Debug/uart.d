@@ -20,6 +20,12 @@ uart.obj: ../interrupts.h
 uart.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdlib.h
 uart.obj: ../uart.h
 uart.obj: C:/ti/TivaWare_C_Series-2.1.4.178/driverlib/interrupt.h
+uart.obj: ../structs.h
+uart.obj: ../lcd.h
+uart.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdio.h
+uart.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdarg.h
+uart.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/string.h
+uart.obj: ../Timer.h
 uart.obj: ../data.h
 
 ../uart.c:
@@ -61,6 +67,18 @@ C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdlib.h:
 ../uart.h:
 
 C:/ti/TivaWare_C_Series-2.1.4.178/driverlib/interrupt.h:
+
+../structs.h:
+
+../lcd.h:
+
+C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdio.h:
+
+C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdarg.h:
+
+C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/string.h:
+
+../Timer.h:
 
 ../data.h:
 

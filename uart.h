@@ -20,6 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "driverlib/interrupt.h"
+#include "structs.h"
+#include "lcd.h"
 
 // The following externals are global variables defined in uart-interrupt.c for use with the interrupt handler.
 // Using extern here, the global variables become visible to other c files that include uart-interrupt.h
@@ -43,20 +45,21 @@ char uart_receive(void);
 
 char uart_receive_no_wait(void);
 
-void uart_sendInt(int data);
-
-void uart_sendFloat(float data);
+//void uart_sendInt(int data);
+//
+//void uart_sendFloat(float data);
 
 // Send a string over UART1
 // Sends each char in the string one at a time
-void uart_sendStr(const char *data);
+//void uart_sendStr(const char *data);
 
-void uart_log();
-void uart_scan();
-void uart_object();
-void uart_move();
-void uart_movea();
-void uart_end();
+void uart_log(const char* str);
+void uart_scan(int degree, double ir);
+void uart_object(TallObject obj);
+void uart_move(double angle, double dist);
+void uart_logEdge(const char* str, int val);
+//void uart_movea();
+//void uart_end();
 void uart_stopWait();
 
 #endif /* UART_H_ */

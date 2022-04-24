@@ -28,7 +28,6 @@ double raw_to_dist(double ir_val);
 void getTrueScan(Scan scan, double dist, double degrees);
 
 void scan_init();
-void scan_test();
 double scan_ir(int degree);
 double scan_ping(int degree);
 void scan_full(TallObject* objects);

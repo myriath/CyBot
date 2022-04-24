@@ -16,9 +16,9 @@ typedef struct Scan {
 typedef struct TallObject {
     int obj_num;
     int angle;
-    float dist;
+    double dist;
     int radial_width;
-    float linear_width;
+    double linear_width;
 } TallObject;
 
 #endif /* STRUCTS_H_ */

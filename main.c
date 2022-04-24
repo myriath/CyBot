@@ -26,12 +26,6 @@
 TallObject objects[MAX_OBJECTS];
 TallObject smallest;
 
-void measure_dist() {
-    uart_log();
-    uart_sendFloat(raw_to_dist(adc_read()));
-    uart_end();
-}
-
 void calibrate() {
     uint8_t last = 0;
     servo_setMatch(right);
@@ -110,14 +104,8 @@ int parse(char* command, oi_t* sensorData) {
         return 4;
     } else if (strcmp(params[0], ":speed") == 0 && paramCnt == 2) {
         speed = atoi(params[1]);
-        uart_log();
-        uart_sendStr("Speed set to ");
-        uart_sendInt(speed);
-        uart_end();
+        uart_logEdge("Speed set to", speed);
         return 5;
-    } else if (strcmp(params[0], ":scantest") == 0 && paramCnt == 1) {
-        scan_test();
-        return 6;
     } else if (strcmp(params[0], ":fullscan") == 0 && paramCnt == 1) {
         scan_full(objects);
         uart_stopWait();
@@ -141,21 +129,15 @@ int parse(char* command, oi_t* sensorData) {
 uint8_t handle_buttons(uint8_t last) {
     uint8_t button = button_getButton();
     if (button != last) {
-        if (button > 0 && button < 5) {
-            uart_log();
-        }
         if (button == 1) {
-            uart_sendStr("Pressed 1");
+            uart_log("Pressed 1");
         } else if (button == 2) {
-            uart_sendStr("Pressed 2");
+            uart_log("Pressed 2");
         } else if (button == 3) {
-            uart_sendStr("Pressed 3");
+            uart_log("Pressed 3");
         } else if (button == 4) {
-            uart_sendStr("Pressed 4");
+            uart_log("Pressed 4");
             calibrate();
-        }
-        if (button > 0 && button < 5) {
-            uart_end();
         }
         return button;
     }
@@ -175,8 +157,8 @@ int main() {
     oi_init(sensorData);
 
     // Calibration data, set this BEFORE scan init
-    left = 284400;
-    right = 312800;
+    left = 282200;
+    right = 310800;
     scan_init();
 
     uint8_t last = 0;
@@ -188,49 +170,34 @@ int main() {
         if (STATE_ROBOT == FORWARD) {
             oi_update(sensorData);
             cumulativeDistance += sensorData->distance / 10;
-//            uart_movea();
-//            uart_sendChar('0');
-//            uart_sendChar(',');
-//            uart_sendFloat(sensorData->distance * 100);
-//            uart_end();
+            cumulativeAngle += sensorData->angle;
             if (cliffSensor(sensorData)) STATE_ROBOT = STOPPED;
             else if (edge_detect(sensorData)) STATE_ROBOT = STOPPED;
             else if (bump(sensorData)) STATE_ROBOT = STOPPED;
         } else if (STATE_ROBOT == REVERSE) {
             oi_update(sensorData);
             cumulativeDistance += sensorData->distance / 10;
+            cumulativeAngle += sensorData->angle;
             if (cliffSensor(sensorData)) STATE_ROBOT = STOPPED;
             else if (edge_detect(sensorData)) STATE_ROBOT = STOPPED;
         } else if (STATE_ROBOT == TURNING) {
             oi_update(sensorData);
+            cumulativeDistance += sensorData->distance / 10;
             cumulativeAngle += sensorData->angle;
-//            uart_movea();
-//            uart_sendFloat(sensorData->angle);
-//            uart_sendChar(',');
-//            uart_sendChar('0');
-//            uart_end();
             if (cliffSensor(sensorData)) STATE_ROBOT = STOPPED;
             else if (edge_detect(sensorData)) STATE_ROBOT = STOPPED;
             else if (bump(sensorData)) STATE_ROBOT = STOPPED;
         } else if (STATE_ROBOT == STOPPED) {
             oi_setWheels(0, 0);
+            timer_waitMillis(100);
             oi_update(sensorData);
-//            uart_movea();
-//            uart_sendFloat(sensorData->angle);
-//            uart_sendChar(',');
-//            uart_sendFloat(sensorData->distance * 100);
-//            uart_end();
             cumulativeDistance += sensorData->distance / 10;
             cumulativeAngle += sensorData->angle;
 
-            uart_move();
-            uart_sendFloat(cumulativeAngle);
-            uart_sendChar(',');
-            uart_sendFloat(cumulativeDistance);
-            uart_end();
+            uart_move(cumulativeDistance, cumulativeAngle);
             STATE_ROBOT = NONE;
-//            cumulativeDistance = 0;
-//            cumulativeAngle = 0;
+            cumulativeDistance = 0;
+            cumulativeAngle = 0;
             continue;
         }
         // Buttons
@@ -289,16 +256,12 @@ int main() {
                 commandLen = 0;
                 int result = parse(command, sensorData);
                 if (result == -1) {
-                    uart_log();
-                    uart_sendStr("Error parsing command: ");
-                    uart_sendStr(command);
-                    uart_end();
+                    uart_log("Error parsing command:");
+                    uart_log(command);
                 } else if (result == 0) { // quit
                     break;
                 } else if (result == 1) { // scan
-                    uart_log();
-                    uart_sendStr("Scan Complete");
-                    uart_end();
+                    uart_log("Scan Complete");
                 }
             } else if (i == 8 || i == 127) {
                 if (commandLen > 0) {

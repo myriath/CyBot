@@ -33,5 +33,10 @@ extern const uint8_t B_MOVE_REVERSE_INC;
 extern const uint8_t B_MOVE_RIGHT;
 extern const uint8_t B_MOVE_RIGHT_INC;
 extern const uint8_t B_NEWLINE;
+extern const uint8_t B_LOG;
+extern const uint8_t B_SCAN_DATA;
+extern const uint8_t B_OBJ;
+extern const uint8_t B_MOVE;
+extern const uint8_t B_LOG_EDGE;
 
 #endif
