@@ -14,9 +14,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../Timer.h"
+#include "../premade/Timer.h"
 #include "driverlib/interrupt.h"
-#include "../lcd.h"
+#include "../premade/lcd.h"
 
 extern unsigned int left;
 extern unsigned int right;

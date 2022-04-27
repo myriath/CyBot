@@ -9,10 +9,6 @@
  */
 
 #include "movement.h"
-#include "open_interface.h"
-#include "data.h"
-#include "uart.h"
-#include "interrupts.h"
 
 void bumpLeft(oi_t* sensorData) {
     move_backward(sensorData, 50);
@@ -32,8 +28,6 @@ void bumpRight(oi_t* sensorData) {
 
 void msgStop(const char* str) {
     uart_log(str);
-//    uart_sendStr(str);
-//    uart_end();
     interrupt_stopMove = true;
 }
 
@@ -74,10 +68,6 @@ void turn_left(oi_t* sensorData, double degrees) {
     lcd_clear();
 
     uart_move(0, degrees);
-//    uart_sendInt(degrees);
-//    uart_sendChar(',');
-//    uart_sendInt(0);
-//    uart_end();
     uart_stopWait();
 }
 
@@ -95,10 +85,6 @@ void turn_right(oi_t* sensorData, double degrees) {
     lcd_clear();
 
     uart_move(0, target);
-//    uart_sendInt(target);
-//    uart_sendChar(',');
-//    uart_sendInt(0);
-//    uart_end();
     uart_stopWait();
 }
 
@@ -123,10 +109,6 @@ void move_forward(oi_t* sensorData, double distanceMM) {
     oi_setWheels(0,0);
     lcd_clear();
     uart_move(distanceMM/10, 0);
-//    uart_sendInt(0);
-//    uart_sendChar(',');
-//    uart_sendFloat(distanceMM/10);
-//    uart_end();
     uart_stopWait();
 }
 
@@ -142,10 +124,6 @@ void move_backward_speed(oi_t* sensorData, double distanceMM, int speed) {
     oi_setWheels(0,0);
     lcd_clear();
     uart_move(distanceMM/10, 0);
-//    uart_sendInt(0);
-//    uart_sendChar(',');
-//    uart_sendFloat(distanceMM/10);
-//    uart_end();
     uart_stopWait();
 }
 
@@ -161,10 +139,6 @@ void move_backward(oi_t* sensorData, double distanceMM) {
     oi_setWheels(0,0);
     lcd_clear();
     uart_move(distanceMM/10, 0);
-//    uart_sendInt(0);
-//    uart_sendChar(',');
-//    uart_sendFloat(distanceMM/10);
-//    uart_end();
     uart_stopWait();
 }
 

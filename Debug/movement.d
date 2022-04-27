@@ -2,7 +2,7 @@
 
 movement.obj: ../movement.c
 movement.obj: ../movement.h
-movement.obj: ../open_interface.h
+movement.obj: ../premade/open_interface.h
 movement.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdio.h
 movement.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/_ti_config.h
 movement.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/linkage.h
@@ -20,22 +20,23 @@ movement.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/std
 movement.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/math.h
 movement.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/_defs.h
 movement.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/machine/_limits.h
-movement.obj: ../Timer.h
+movement.obj: ../premade/Timer.h
 movement.obj: C:/ti/TivaWare_C_Series-2.1.4.178/inc/tm4c123gh6pm.h
 movement.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdbool.h
 movement.obj: C:/ti/TivaWare_C_Series-2.1.4.178/driverlib/interrupt.h
-movement.obj: ../lcd.h
-movement.obj: ../data.h
-movement.obj: ../uart.h
-movement.obj: ../structs.h
-movement.obj: ../interrupts.h
+movement.obj: ../premade/lcd.h
+movement.obj: ../data/data.h
+movement.obj: ../comms/uart.h
+movement.obj: ../data/structs.h
+movement.obj: ../data/interrupts.h
 movement.obj: C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdlib.h
+movement.obj: ../comms/uart.h
 
 ../movement.c:
 
 ../movement.h:
 
-../open_interface.h:
+../premade/open_interface.h:
 
 C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdio.h:
 
@@ -71,7 +72,7 @@ C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/_defs.h:
 
 C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/machine/_limits.h:
 
-../Timer.h:
+../premade/Timer.h:
 
 C:/ti/TivaWare_C_Series-2.1.4.178/inc/tm4c123gh6pm.h:
 
@@ -79,15 +80,17 @@ C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdbool.h:
 
 C:/ti/TivaWare_C_Series-2.1.4.178/driverlib/interrupt.h:
 
-../lcd.h:
+../premade/lcd.h:
 
-../data.h:
+../data/data.h:
 
-../uart.h:
+../comms/uart.h:
 
-../structs.h:
+../data/structs.h:
 
-../interrupts.h:
+../data/interrupts.h:
 
 C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/stdlib.h:
+
+../comms/uart.h:
 

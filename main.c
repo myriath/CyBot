@@ -8,20 +8,7 @@
 
 #define PI 3.1415926535
 
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
-
-#include "button.h"
-#include "open_interface.h"
-#include "Timer.h"
-#include "lcd.h"
-
-#include "uart.h"
-#include "data.h"
-#include "movement.h"
-#include "structs.h"
-#include "scan/scan.h"
+#include "main.h"
 
 TallObject objects[MAX_OBJECTS];
 TallObject smallest;
@@ -157,8 +144,8 @@ int main() {
     oi_init(sensorData);
 
     // Calibration data, set this BEFORE scan init
-    left = 282200;
-    right = 310800;
+    left = 284600;
+    right = 311600;
     scan_init();
 
     uint8_t last = 0;

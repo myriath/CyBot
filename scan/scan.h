@@ -9,23 +9,20 @@
 #define SCAN_H_
 
 #include <math.h>
-#include "structs.h"
-#include "../interrupts.h"
+#include "../data/structs.h"
+#include "../data/data.h"
+#include "../data/interrupts.h"
 
 #include "adc.h"
 #include "ping.h"
 #include "scan.h"
 #include "servo.h"
-#include "../uart.h"
-#include "../structs.h"
-#include "../data.h"
+#include "../comms/uart.h"
 
 double toRadians(double degrees);
 double toDegrees(double radians);
 
 double raw_to_dist(double ir_val);
-
-void getTrueScan(Scan scan, double dist, double degrees);
 
 void scan_init();
 double scan_ir(int degree);

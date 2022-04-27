@@ -60,17 +60,5 @@ void servo_move(int degrees) {
 
     int dist = abs(currentDegree - degrees);
     currentDegree = degrees;
-//    timer_waitMillis(500);
     timer_waitMillis(servoMillisPerDegree * dist + 100);
-
-
-//    // old code
-//    double percent = degrees / 180.0f;
-//    unsigned long int a = (right - left);
-//    unsigned long int match = left + a * percent;
-//    int b = match & 0xffff;
-//    int c = (unsigned long int)(match >> 16) & 0xff0000;
-//
-//    TIMER1_TBMATCHR_R = match & 0xffff;
-//    TIMER1_TBPMR_R = (unsigned long int)(match & 0xff0000) >> 16;
 }

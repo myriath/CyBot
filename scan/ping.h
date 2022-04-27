@@ -10,9 +10,9 @@
 
 #include <stdint.h>
 #include <inc/tm4c123gh6pm.h>
-#include "Timer.h"
+#include "../premade/Timer.h"
 #include "driverlib/interrupt.h"
-#include "lcd.h"
+#include "../premade/lcd.h"
 
 void ping_init();
 void ping_trigger();

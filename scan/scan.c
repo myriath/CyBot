@@ -24,13 +24,6 @@ double toDegrees(double radians) {
     return radians * 180 / PI;
 }
 
-void getTrueScan(Scan scan, double dist, double degrees) {
-    double x = dist * cos(toRadians(degrees));
-    double y = dist * sin(toRadians(degrees)) + 18.75;
-    scan.distance = sqrt(x * x + y * y);
-    scan.angle = toDegrees(atan(y / x));
-}
-
 void scan_init() {
     adc_init();
     ping_init();
@@ -67,12 +60,9 @@ void scan_buildObject(int obj_degree_end, int obj_degree_start, TallObject* obje
     if (obj.radial_width > 2 && object_num <= MAX_OBJECTS) {
         objects[obj.obj_num] = obj;
         uart_log("end obj");
-//        uart_sendStr("end obj");
     } else {
         uart_log("ignored");
-//        uart_sendStr("ignored");
     }
-//    uart_end();
 }
 
 void scan_full(TallObject* objects) {
@@ -90,28 +80,16 @@ void scan_full(TallObject* objects) {
         if (interrupt_stopScan || interrupt_emergency) return;
 
         double ir_val = scan_ir(i);
-//        uart_log();
-//        uart_sendInt(i);
-//        uart_sendStr("\t\t");
-//        uart_sendInt(ir_val);
-//        uart_end();
 
         bool finding_obj = ir_val > 10 && ir_val < 70;
 
         if (finding_obj) {
             uart_scan(i, ir_val);
-//            uart_sendInt(i);
-//            uart_sendStr(",");
-//            uart_sendFloat(ir_val);
-//            uart_end();
         }
 
         if (found_obj != finding_obj && finding_obj == true) {
             obj_degree_start = i;
             uart_log("start obj");
-//            uart_logi(i);
-//            uart_sendStr("start obj");
-//            uart_end();
         } else if (found_obj != finding_obj && finding_obj == false) {
             scan_buildObject(i, obj_degree_start, objects);
         }
@@ -131,30 +109,10 @@ void scan_full(TallObject* objects) {
     }
 
     uart_log("Angle\tDist\tWidth");
-//    uart_sendStr("Obj#\tAngle\tDist\tRWidth\tLWidth");
-//    uart_end();
     for (i = 0; i < object_num; i++) {
         if (interrupt_stopScan || interrupt_emergency) return;
         if (objects[i].dist < 50 + objects[i].linear_width) {
-//            uart_log_old();
-//            uart_sendInt(objects[i].obj_num); // send object data to screen
-//            uart_sendChar('\t');
-//            uart_sendInt(objects[i].angle);
-//            uart_sendChar('\t');
-//            uart_sendFloat(objects[i].dist);
-//            uart_sendChar('\t');
-//            uart_sendInt(objects[i].radial_width);
-//            uart_sendChar('\t');
-//            uart_sendFloat(objects[i].linear_width);
-//            uart_end();
-
             uart_object(objects[i]);
-//            uart_sendInt(objects[i].angle);
-//            uart_sendChar(',');
-//            uart_sendFloat(objects[i].dist);
-//            uart_sendChar(',');
-//            uart_sendFloat(objects[i].linear_width);
-//            uart_end();
         }
     }
 

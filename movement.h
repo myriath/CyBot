@@ -8,7 +8,10 @@
  * Handles different move operations for the robot.
  */
 
-#include "open_interface.h"
+#include "premade/open_interface.h"
+#include "data/data.h"
+#include "comms/uart.h"
+#include "data/interrupts.h"
 #ifndef MOVEMENT_H_
 #define MOVEMENT_H_
 
