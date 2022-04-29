@@ -14,10 +14,12 @@
 #include "driverlib/interrupt.h"
 #include "../premade/lcd.h"
 
+// Initializes the ping sensor.
 void ping_init();
-void ping_trigger();
+// Uses the ping sensor to get the distance of the current position.
 float ping_getDistance();
 
+// Interrupt handler for the timer.
 void TIMER3B_Handler();
 
 #endif /* PING_H_ */
