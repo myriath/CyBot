@@ -10,22 +10,21 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
-"./Timer.obj" \
-"./button.obj" \
-"./data.obj" \
-"./lcd.obj" \
 "./main.obj" \
 "./movement.obj" \
-"./open_interface.obj" \
-"./resetSimulation.obj" \
 "./tm4c123gh6pm_startup_ccs.obj" \
-"./uart.obj" \
+"./comms/button.obj" \
+"./comms/uart.obj" \
+"./data/data.obj" \
+"./data/interrupts.obj" \
+"./premade/Timer.obj" \
+"./premade/lcd.obj" \
+"./premade/open_interface.obj" \
+"./premade/resetSimulation.obj" \
 "./scan/adc.obj" \
 "./scan/ping.obj" \
 "./scan/scan.obj" \
 "./scan/servo.obj" \
-"../libcybotScan.lib" \
-"../libcybotUART.lib" \
 "../tm4c123gh6pm.cmd" \
 $(GEN_CMDS__FLAG) \
 -llibc.a \
@@ -39,8 +38,14 @@ RMDIR := RMDIR /S/Q
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include subdir_vars.mk
+-include comms/subdir_vars.mk
+-include data/subdir_vars.mk
+-include premade/subdir_vars.mk
 -include scan/subdir_vars.mk
 -include subdir_rules.mk
+-include comms/subdir_rules.mk
+-include data/subdir_rules.mk
+-include premade/subdir_rules.mk
 -include scan/subdir_rules.mk
 -include objects.mk
 
@@ -151,14 +156,14 @@ BIN_OUTPUTS__QUOTED += \
 
 
 # All Target
-all: $(OBJS) $(CMD_SRCS) $(LIB_SRCS) $(GEN_CMDS)
+all: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 	@$(MAKE) --no-print-directory -Onone "Final.out"
 
 # Tool invocations
-Final.out: $(OBJS) $(CMD_SRCS) $(LIB_SRCS) $(GEN_CMDS)
+Final.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 	@echo 'Building target: "$@"'
 	@echo 'Invoking: Arm Linker'
-	"C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 -me --define=ccs="ccs" --define=PART_TM4C123GH6PM -g --gcc --diag_warning=225 --diag_wrap=off --display_error_number --abi=eabi -z -m"Final.map" --heap_size=4096 --stack_size=4096 -i"C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/lib" -i"C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include" --reread_libs --diag_wrap=off --display_error_number --warn_sections --xml_link_info="Final_linkInfo.xml" --rom_model -o "Final.out" $(ORDERED_OBJS)
+	"C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 -me --define=ccs="ccs" --define=PART_TM4C123GH6PM -g --gcc --diag_warning=225 --diag_wrap=off --display_error_number --abi=eabi -z -m"Final.map" --heap_size=8192 --stack_size=8192 -i"C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/lib" -i"C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include" --reread_libs --diag_wrap=off --display_error_number --warn_sections --xml_link_info="Final_linkInfo.xml" --rom_model -o "Final.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: "$@"'
 	@echo ' '
 
@@ -172,8 +177,8 @@ Final.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "Timer.obj" "button.obj" "data.obj" "lcd.obj" "main.obj" "movement.obj" "open_interface.obj" "resetSimulation.obj" "tm4c123gh6pm_startup_ccs.obj" "uart.obj" "scan\adc.obj" "scan\ping.obj" "scan\scan.obj" "scan\servo.obj" 
-	-$(RM) "Timer.d" "button.d" "data.d" "lcd.d" "main.d" "movement.d" "open_interface.d" "resetSimulation.d" "tm4c123gh6pm_startup_ccs.d" "uart.d" "scan\adc.d" "scan\ping.d" "scan\scan.d" "scan\servo.d" 
+	-$(RM) "main.obj" "movement.obj" "tm4c123gh6pm_startup_ccs.obj" "comms\button.obj" "comms\uart.obj" "data\data.obj" "data\interrupts.obj" "premade\Timer.obj" "premade\lcd.obj" "premade\open_interface.obj" "premade\resetSimulation.obj" "scan\adc.obj" "scan\ping.obj" "scan\scan.obj" "scan\servo.obj" 
+	-$(RM) "main.d" "movement.d" "tm4c123gh6pm_startup_ccs.d" "comms\button.d" "comms\uart.d" "data\data.d" "data\interrupts.d" "premade\Timer.d" "premade\lcd.d" "premade\open_interface.d" "premade\resetSimulation.d" "scan\adc.d" "scan\ping.d" "scan\scan.d" "scan\servo.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

@@ -8,80 +8,34 @@ SHELL = cmd.exe
 CMD_SRCS += \
 ../tm4c123gh6pm.cmd 
 
-LIB_SRCS += \
-../libcybotScan.lib \
-../libcybotUART.lib 
-
 C_SRCS += \
-../Timer.c \
-../button.c \
-../data.c \
-../lcd.c \
 ../main.c \
 ../movement.c \
-../open_interface.c \
-../resetSimulation.c \
-../tm4c123gh6pm_startup_ccs.c \
-../uart.c 
+../tm4c123gh6pm_startup_ccs.c 
 
 C_DEPS += \
-./Timer.d \
-./button.d \
-./data.d \
-./lcd.d \
 ./main.d \
 ./movement.d \
-./open_interface.d \
-./resetSimulation.d \
-./tm4c123gh6pm_startup_ccs.d \
-./uart.d 
+./tm4c123gh6pm_startup_ccs.d 
 
 OBJS += \
-./Timer.obj \
-./button.obj \
-./data.obj \
-./lcd.obj \
 ./main.obj \
 ./movement.obj \
-./open_interface.obj \
-./resetSimulation.obj \
-./tm4c123gh6pm_startup_ccs.obj \
-./uart.obj 
+./tm4c123gh6pm_startup_ccs.obj 
 
 OBJS__QUOTED += \
-"Timer.obj" \
-"button.obj" \
-"data.obj" \
-"lcd.obj" \
 "main.obj" \
 "movement.obj" \
-"open_interface.obj" \
-"resetSimulation.obj" \
-"tm4c123gh6pm_startup_ccs.obj" \
-"uart.obj" 
+"tm4c123gh6pm_startup_ccs.obj" 
 
 C_DEPS__QUOTED += \
-"Timer.d" \
-"button.d" \
-"data.d" \
-"lcd.d" \
 "main.d" \
 "movement.d" \
-"open_interface.d" \
-"resetSimulation.d" \
-"tm4c123gh6pm_startup_ccs.d" \
-"uart.d" 
+"tm4c123gh6pm_startup_ccs.d" 
 
 C_SRCS__QUOTED += \
-"../Timer.c" \
-"../button.c" \
-"../data.c" \
-"../lcd.c" \
 "../main.c" \
 "../movement.c" \
-"../open_interface.c" \
-"../resetSimulation.c" \
-"../tm4c123gh6pm_startup_ccs.c" \
-"../uart.c" 
+"../tm4c123gh6pm_startup_ccs.c" 
 
 

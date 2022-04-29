@@ -10,15 +10,16 @@
 
 #include <stdint.h>
 #include <inc/tm4c123gh6pm.h>
-#include "Timer.h"
+#include "../premade/Timer.h"
 #include "driverlib/interrupt.h"
-#include "lcd.h"
+#include "../premade/lcd.h"
 
+// Initializes the ping sensor.
 void ping_init();
-void ping_trigger();
-float ping_getDistanceCM();
-float ping_getDistanceRAW();
+// Uses the ping sensor to get the distance of the current position.
+float ping_getDistance();
 
+// Interrupt handler for the timer.
 void TIMER3B_Handler();
 
 #endif /* PING_H_ */

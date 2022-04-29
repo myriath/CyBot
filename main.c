@@ -8,200 +8,77 @@
 
 #define PI 3.1415926535
 
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
+#include "main.h"
 
-#include "button.h"
-#include "open_interface.h"
-#include "Timer.h"
-#include "lcd.h"
-//#include "cyBot_Scan.h"
+// Array of objects used when scanning.
+TallObject objects[MAX_OBJECTS];
 
-#include "uart.h"
-#include "data.h"
-#include "movement.h"
-#include "structs.h"
-#include "scan/scan.h"
-
-//cyBOT_Scan_t scanData;
-TallObject smallest;
-
-double raw_to_dist(double ir_val) {
-    if (ir_val <= 118.22901) return -1;
-    return 28541.58384 / (ir_val - 118.22901);
-}
-
-void scan_test() {
-//    cyBOT_Scan(90, &scanData);
-    uart_log();
-    uart_sendStr("IR val");
-    uart_end();
-
-    int ir_val = 0;
-    int j = 0;
-    for (j = 0; j < 10; j++) {
-//        cyBOT_Scan(90, &scanData);
-//        ir_val += scanData.IR_raw_val;
-        ir_val += adc_read();
-    }
-    ir_val /= 10;
-    uart_log();
-    uart_sendInt(ir_val);
-    uart_end();
-}
-
-void measure_dist() {
-    uart_log();
-    uart_sendFloat(raw_to_dist(adc_read()));
-    uart_end();
-}
-
-void build_object(int i, int obj_degree_start, TallObject* objects) {
-    TallObject obj;
-    obj.obj_num = object_num++;
-    obj.radial_width = i - obj_degree_start;
-    obj.angle = obj_degree_start + (obj.radial_width / 2);
-
-    if (obj.radial_width > 2) {
-        objects[obj.obj_num] = obj;
-        uart_log();
-        uart_sendStr("end obj");
-    } else {
-        uart_log();
-        uart_sendStr("ignored");
-    }
-    uart_end();
-}
-
-void full_scan() {
-    TallObject objects[MAX_OBJECTS];
-    bool found_obj = false;
-    int obj_degree_start;
-
-//    cyBOT_Scan(0, &scanData);
-    uart_log();
-    uart_sendStr("Degrees\t\tIR val");
-    uart_end();
-
-    int i;
-    for (i = 0; i <= 180; i += 2) {
-        if (command_byte == B_EMERGENCY_STOP) return;
-
-        int j;
-        int ir_val = 0;
-        for (j = 0; j < 2; j++) {
-//            cyBOT_Scan(i, &scanData);
-//            ir_val += scanData.IR_raw_val;
+/**
+ * Calibration method for the servo.
+ * Press button 4 while in main to enter.
+ * First you set the right value using 1 and 2 to turn left and right, and 3 to confirm.
+ * Then you set the left value using 1 and 2 to turn and 4 to confirm.
+ */
+void calibrate() {
+    uint8_t last = 0;
+    servo_setMatch(right);
+    lcd_printf("calibrating");
+    while (true) {
+        uint8_t button = button_getButton();
+        if (button != last) {
+            if (button == 1) {
+                right -= 200;
+            } else if (button == 2) {
+                right += 200;
+            } else if (button == 3) {
+                break;
+            }
+            servo_setMatch(right);
+            last = button;
         }
-        ir_val /= 2;
-
-        uart_log();
-        uart_sendInt(i);
-        uart_sendStr("\t\t");
-        uart_sendInt(ir_val);
-        uart_sendStr("\t\t");
-
-        float ir_dist = 21602.74 / (ir_val - 664.47);
-        uart_sendFloat(ir_dist);
-        uart_end();
-        bool finding_obj = ir_dist > 10 && ir_dist < 50;
-
-        if (finding_obj) {
-            uart_scan();
-            uart_sendInt(i);
-            uart_sendStr(",");
-            uart_sendFloat(ir_dist);
-            uart_end();
+    }
+    servo_setMatch(left);
+    while (true) {
+        uint8_t button = button_getButton();
+        if (button != last) {
+            if (button == 1) {
+                left -= 200;
+            } else if (button == 2) {
+                left += 200;
+            } else if (button == 4) {
+                break;
+            }
+            servo_setMatch(left);
+            last = button;
         }
-
-        if (found_obj != finding_obj && finding_obj == true) {
-            obj_degree_start = i;
-            uart_log();
-            uart_sendStr("start obj");
-            uart_end();
-        } else if (found_obj != finding_obj && finding_obj == false) {
-            build_object(i, obj_degree_start, objects);
-        }
-        found_obj = finding_obj;
     }
-    if (found_obj) {
-        build_object(180, obj_degree_start, objects);
-    }
-
-    for (i = 0; i < object_num; i++) {
-        if (command_byte == B_EMERGENCY_STOP) return;
-        float ping_dist = 0;
-        int j;
-        for (j = 0; j < 6; j++) {
-//            cyBOT_Scan(objects[i].angle, &scanData);
-//            ping_dist += scanData.sound_dist;
-        }
-        ping_dist /= 6;
-
-        objects[i].dist = ping_dist;
-
-        double radians = (objects[i].radial_width * PI) / 360.0;
-        objects[i].linear_width = 2 * ping_dist * tan(radians);
-    }
-
-    uart_log();
-    uart_sendStr("Obj#\tAngle\tDist\tRWidth\tLWidth");
-    uart_end();
-    for (i = 0; i < object_num; i++) {
-        if (command_byte == B_EMERGENCY_STOP) return;
-        uart_log();
-        uart_sendInt(objects[i].obj_num); // send object data to screen
-        uart_sendChar('\t');
-        uart_sendInt(objects[i].angle);
-        uart_sendChar('\t');
-        uart_sendFloat(objects[i].dist);
-        uart_sendChar('\t');
-        uart_sendInt(objects[i].radial_width);
-        uart_sendChar('\t');
-        uart_sendFloat(objects[i].linear_width);
-        uart_end();
-
-        uart_object();
-        uart_sendInt(objects[i].angle);
-        uart_sendChar(',');
-        uart_sendFloat(objects[i].dist);
-        uart_sendChar(',');
-        uart_sendFloat(objects[i].linear_width);
-        uart_end();
-    }
-
-    object_num = 0;
+    // Prints new values to the lcd so you can update it in main.
+    lcd_printf("Left:  %d\nRight: %d", left, right);
 }
 
+/**
+ * Parses the command given after typing a ":"
+ */
 int parse(char* command, oi_t* sensorData) {
+    // Create temporary arrays/pointers for use later.
     char str[MAX_COMMAND_LEN];
     char* params[MAX_COMMAND_LEN];
     int paramCnt = 0;
+    // Copies string from constant input to workable array.
     strcpy(str, command);
 
+    // Continually breaks up the command by spaces and puts each pointer into an array for parameters.
     char* ptr = strtok(str, " ");
     while (ptr != NULL) {
         params[paramCnt++] = ptr;
         ptr = strtok(NULL, " ");
     }
 
+    // Based on params from above, execute the desired command.
     if (strcmp(params[0], ":q") == 0 && paramCnt == 1) {
         return 0;
     } else if (strcmp(params[0], ":calibrate") == 0 && paramCnt == 1) {
-//        cyBOT_SERVRO_cal_t calibration = cyBOT_SERVO_cal();
-//        right_calibration_value = calibration.right;
-//        left_calibration_value = calibration.left;
-
-        uart_log();
-        uart_sendStr("Right Calibration Value: ");
-//        uart_sendInt(calibration.right);
-        uart_end();
-        uart_log();
-        uart_sendStr("Left Calibration Value: ");
-//        uart_sendInt(calibration.left);
-        uart_end();
-
+        calibrate();
         return 2;
     } else if (strcmp(params[0], ":print") == 0 && paramCnt > 1) {
         int i = 1;
@@ -211,32 +88,19 @@ int parse(char* command, oi_t* sensorData) {
         }
         return 3;
     } else if (strcmp(params[0], ":move") == 0 && paramCnt == 2) {
-        if (strcmp(params[1], "square") == 0) move_square(sensorData);
-        else if (strcmp(params[1], "smallest") == 0) {
-            if (smallest.angle < 90) turn_right(sensorData, 90 - smallest.angle);
-            else turn_left(sensorData, smallest.angle - 90);
-            move_forward(sensorData, 10 * smallest.dist);
+        float dist = atof(params[1]);
+        if (dist < 0) {
+            move_backward(sensorData, -dist);
         } else {
-            float dist = atof(params[1]);
-            if (dist < 0) {
-                move_backward(sensorData, -dist);
-            } else {
-                move_forward(sensorData, dist);
-            }
+            move_forward(sensorData, dist);
         }
         return 4;
     } else if (strcmp(params[0], ":speed") == 0 && paramCnt == 2) {
         speed = atoi(params[1]);
-        uart_log();
-        uart_sendStr("Speed set to ");
-        uart_sendInt(speed);
-        uart_end();
+        uart_logEdge("Speed set to", speed);
         return 5;
-    } else if (strcmp(params[0], ":scantest") == 0 && paramCnt == 1) {
-        scan_test();
-        return 6;
     } else if (strcmp(params[0], ":fullscan") == 0 && paramCnt == 1) {
-        full_scan();
+        scan_full(objects);
         uart_stopWait();
         return 7;
     } else if (strcmp(params[0], ":turn") == 0 && paramCnt == 2) {
@@ -247,193 +111,199 @@ int parse(char* command, oi_t* sensorData) {
             turn_left(sensorData, degrees);
         }
         return 8;
+    } else if (strcmp(params[0], ":servo") == 0 && paramCnt == 2) {
+        int degrees = atoi(params[1]);
+        servo_move(degrees);
+        oi_setWheels(100,100);
+        return 9;
     }
-
+    // If no command is known, return -1 which prints unknown command to the screen.
     return -1;
 }
 
-void calibrate() {
-    uint8_t last = 0;
-    servo_setMatch(right);
-    while (true) {
-        uint8_t button = button_getButton();
-        if (button != last) {
-            if (button == 1) {
-                right -= 200;
-                unsigned int r = right;
-                servo_setMatch(right);
-            } else if (button == 2) {
-                right += 200;
-                unsigned int r = right;
-                servo_setMatch(right);
-            } else if (button == 3) {
-                break;
-            }
-            last = button;
-        }
-    }
-    servo_setMatch(left);
-    while (true) {
-        uint8_t button = button_getButton();
-        if (button != last) {
-            if (button == 1) {
-                left -= 200;
-                servo_setMatch(left);
-            } else if (button == 2) {
-                left += 200;
-                unsigned int r = left;
-                servo_setMatch(left);
-            } else if (button == 4) {
-                break;
-            }
-            last = button;
-        }
-    }
-
-    lcd_printf("Left:  %d\nRight: %d", left, right);
-}
-
+/**
+ * Handles the button inputs every cycle of main's while loop.
+ */
 uint8_t handle_buttons(uint8_t last) {
+    // Gets the button.
     uint8_t button = button_getButton();
+    // Depending on which buttons are pressed, do something.
     if (button != last) {
-        if (button > 0 && button < 5) {
-            uart_log();
-        }
         if (button == 1) {
-            uart_sendStr("Pressed 1");
+            uart_log("Pressed 1");
         } else if (button == 2) {
-            uart_sendStr("Pressed 2");
+            uart_log("Pressed 2");
         } else if (button == 3) {
-            uart_sendStr("Pressed 3");
+            uart_log("Pressed 3");
         } else if (button == 4) {
-            uart_sendStr("Pressed 4");
+            uart_log("Pressed 4");
             calibrate();
-        }
-        if (button > 0 && button < 5) {
-            uart_end();
         }
         return button;
     }
     return last;
 }
 
+// Enumeration used to store the state of the robot.
+enum{NONE, STOPPED, TURNING, FORWARD, REVERSE} STATE_ROBOT = NONE;
+
+/**
+ * Main function
+ * Initializes all functions, starts uart comms, and starts reading commands.
+ */
 int main() {
+    // Initialize button, timer, uart, and lcd.
     button_init();
     timer_init();
+    uart_init();
     lcd_init();
 
+    // Connect to oi for movement and sensors.
     oi_t* sensorData = oi_alloc();
     oi_init(sensorData);
 
-    uart_init();
-//    cyBOT_init_Scan(0x7);
-    adc_init();
-     ping_init();
-     left = 284400;
-     right = 312600;
+    // Calibration data, set this BEFORE scan init
+    left = 283800;
+    right = 311200;
+    // Initializes the scan functions with the given servo values.
+    scan_init();
 
-//    right_calibration_value = SCAN_RIGHT;
-//    left_calibration_value = SCAN_LEFT;
-
+    // Keeps track of previous button pressed.
     uint8_t last = 0;
+    // Array for storing the command as it is written.
     int commandLen = 0;
     char command[MAX_COMMAND_LEN];
 
-    servo_init();
-    servo_move(90);
+    // Main loop.
     while (true) {
+        // Reset interrupts each loop.
+        interrupt_reset();
+        // Based on the current state, update cumulative distance values with new data.
+        if (STATE_ROBOT == FORWARD) {
+            oi_update(sensorData);
+            cumulativeDistance += sensorData->distance / 10;
+            cumulativeAngle += sensorData->angle;
+            if (cliffSensor(sensorData)) STATE_ROBOT = STOPPED;
+            else if (edge_detect(sensorData)) STATE_ROBOT = STOPPED;
+            else if (bump(sensorData)) STATE_ROBOT = STOPPED;
+        } else if (STATE_ROBOT == REVERSE) {
+            oi_update(sensorData);
+            cumulativeDistance += sensorData->distance / 10;
+            cumulativeAngle += sensorData->angle;
+            if (cliffSensor(sensorData)) STATE_ROBOT = STOPPED;
+            else if (edge_detect(sensorData)) STATE_ROBOT = STOPPED;
+        } else if (STATE_ROBOT == TURNING) {
+            oi_update(sensorData);
+            cumulativeDistance += sensorData->distance / 10;
+            cumulativeAngle += sensorData->angle;
+            if (cliffSensor(sensorData)) STATE_ROBOT = STOPPED;
+            else if (edge_detect(sensorData)) STATE_ROBOT = STOPPED;
+            else if (bump(sensorData)) STATE_ROBOT = STOPPED;
+        } else if (STATE_ROBOT == STOPPED) {
+            // Once the button is let go, turn off wheels, wait until robot comes to a stop, send move data to the app.
+            oi_setWheels(0, 0);
+            timer_waitMillis(100);
+            oi_update(sensorData);
+            cumulativeDistance += sensorData->distance / 10;
+            cumulativeAngle += sensorData->angle;
+
+            uart_move(cumulativeDistance, cumulativeAngle);
+            STATE_ROBOT = NONE;
+            cumulativeDistance = 0;
+            cumulativeAngle = 0;
+            continue;
+        }
+        // Buttons
         last = handle_buttons(last);
+
+        // App
+        char i = command_byte;
+        if (i != 0) {
+            command_byte = 0;
+            // If we are not writing a command.
+            if (!commandLen) {
+                // Depending on byte received, do a certain command. These are defined in data.c
+                if (i == B_SCAN) {
+                    scanning = true;
+                    scan_full(objects);
+                    scanning = false;
+                } else if (i == B_MOVE_STOP) {
+                    STATE_ROBOT = STOPPED;
+                    oi_setWheels(0, 0);
+                } else if (i == B_MOVE_FORWARD) {
+                    STATE_ROBOT = FORWARD;
+                    oi_setWheels(speed, speed);
+                    cumulativeDistance = 0;
+                    cumulativeAngle = 0;
+                } else if (i == B_MOVE_LEFT) {
+                    STATE_ROBOT = TURNING;
+                    oi_setWheels(speed, -speed);
+                    cumulativeDistance = 0;
+                    cumulativeAngle = 0;
+                } else if (i == B_MOVE_REVERSE) {
+                    STATE_ROBOT = REVERSE;
+                    oi_setWheels(-speed, -speed);
+                    cumulativeDistance = 0;
+                    cumulativeAngle = 0;
+                } else if (i == B_MOVE_RIGHT) {
+                    STATE_ROBOT = TURNING;
+                    oi_setWheels(-speed, speed);
+                    cumulativeDistance = 0;
+                    cumulativeAngle = 0;
+                } else if (i == B_MOVE_FORWARD_INC) {
+                    move_forward(sensorData, 50);
+                } else if (i == B_MOVE_LEFT_INC) {
+                    turn_left(sensorData, 5);
+                } else if (i == B_MOVE_REVERSE_INC) {
+                    move_backward(sensorData, 50);
+                } else if (i == B_MOVE_RIGHT_INC) {
+                    turn_right(sensorData, 5);
+                } else if (i == ':') {
+                    // Begin reading a command.
+                    command[commandLen++] = i;
+                    command[commandLen] = '\0';
+
+                    lcd_printf("%c : %d | %d\n%s", i, i, commandLen, command); // debug output
+                }
+            // B_NEWLINE indicates the end of the command and tells the robot to parse the command.
+            } else if (i == B_NEWLINE) {
+                // clear lcd
+                lcd_printf("");
+
+                // Reset commandLen for next command.
+                commandLen = 0;
+                // Parse the command received and based on result send data back to the app.
+                int result = parse(command, sensorData);
+                if (result == -1) {
+                    uart_log("Error parsing command:");
+                    uart_log(command);
+                } else if (result == 0) { // quit
+                    break;
+                } else if (result == 1) { // scan
+                    uart_log("Scan Complete");
+                }
+            // If receiving a backspace, remove most recent character.
+            } else if (i == 8 || i == 127) {
+                if (commandLen > 0) {
+                    command[--commandLen] = '\0';
+
+                    lcd_printf("%c : %d | %d\n%s", i, i, commandLen, command); // debug output
+                }
+            // If there is no space in the array, ignore input.
+            } else if (commandLen > MAX_COMMAND_LEN - 1) {
+                continue;
+            // If none of the above, add the character received to the array.
+            } else {
+                command[commandLen++] = i;
+                command[commandLen] = '\0';
+
+                lcd_printf("%c : %d | %d\n%s", i, i, commandLen, command); // debug output
+            }
+        }
     }
 
-//    int overflows = 0;
-//    while (true) {
-//        last = handle_buttons(last);
-//
-//        ping_trigger();
-//        timer_waitMillis(500);
-//        float dist = ping_getDistanceCM();
-//        if (dist < 0) {
-//            overflows++;
-//        }
-//
-//        lcd_printf("RAW: %0.2f\n CM: %0.2f\nOVF: %d", ping_getDistanceRAW(), dist, overflows);
-//    }
-
-//    while (true) {
-//        char i = command_byte;
-//        if (i == B_MOVE_FORWARD) {
-//            command_byte = 0;
-//            measure_dist();
-//        }
-
-//    }
-//    while (true){
-//        // Buttons
-//        last = handle_buttons(last);
-////        uart_log();
-////        uart_sendStr("hello");
-////        uart_end();
-////        timer_waitMillis(1000);
-//
-//        // PuTTY
-//        char i = command_byte;
-////        lcd_printf("%d", i);
-//        if (i != 0) {
-//            command_byte = 0;
-//            if (!commandLen) {
-//                if (i == B_SCAN) {
-//                    full_scan();
-//                } else if (i == B_MOVE_STOP) {
-//                    oi_setWheels(0, 0);
-//                } else if (i == B_MOVE_FORWARD) {
-//                    oi_setWheels(speed, speed);
-//                } else if (i == B_MOVE_LEFT) {
-//                    oi_setWheels(speed, -speed);
-//                } else if (i == B_MOVE_REVERSE) {
-//                    oi_setWheels(-speed, -speed);
-//                } else if (i == B_MOVE_RIGHT) {
-//                    oi_setWheels(-speed, speed);
-//                } else if (i == ':') {
-//                    command[commandLen++] = i;
-//                    command[commandLen] = '\0';
-//
-//                    lcd_printf("%c : %d | %d\n%s", i, i, commandLen, command); // debug output
-//                }
-//            } else if (i == B_NEWLINE) {
-//                // clear lcd
-//                lcd_printf("");
-//
-//                commandLen = 0;
-//                int result = parse(command, sensorData);
-//                if (result == -1) {
-//                    uart_log();
-//                    uart_sendStr("Error parsing command: ");
-//                    uart_sendStr(command);
-//                    uart_end();
-//                } else if (result == 0) { // quit
-//                    break;
-//                } else if (result == 1) { // scan
-//                    uart_log();
-//                    uart_sendStr("Scan Complete");
-//                    uart_end();
-//                }
-//            } else if (i == 8 || i == 127) {
-//                if (commandLen > 0) {
-//                    command[--commandLen] = '\0';
-//
-//                    lcd_printf("%c : %d | %d\n%s", i, i, commandLen, command); // debug output
-//                }
-//            } else if (commandLen > MAX_COMMAND_LEN - 1) {
-//                continue;
-//            } else {
-//                command[commandLen++] = i;
-//                command[commandLen] = '\0';
-//
-//                lcd_printf("%c : %d | %d\n%s", i, i, commandLen, command); // debug output
-//            }
-//        }
-//    }
-
+    // After finishing main, release the oi data.
     oi_free(sensorData);
+    // Return
     return 0;
 }
